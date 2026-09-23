@@ -1,0 +1,38 @@
+Redesign e Reformulação de Site Institucional com Foco em SEO e Conversão
+
+Categoria: TI e Programação
+Publicado há alguns dias · Aberto
+
+Sobre este projeto
+
+O projeto consiste na reformulação completa de um site institucional existente, com o
+objetivo de otimizar seu desempenho em SEO, melhorar a estrutura de conteúdo e aumentar
+as taxas de conversão.
+
+As principais tarefas incluem:
+
+- Correção técnica de SEO, abrangendo a otimização de títulos e meta descriptions por
+  página, implementação de Schema.org, otimização de imagens e melhoria da velocidade
+  do site.
+- Reestruturação de conteúdo, com a reescrita de cada página de aplicação para focar em
+  problemas, benefícios e provas sociais, além da criação de uma nova seção de blog para
+  estratégias de SEO de topo de funil.
+- Redesign orientado a conversão, que envolve a criação de um novo hero section com
+  destaque para a prova mais forte, ampliação da prova social, integração de um botão
+  flutuante de WhatsApp e posicionamento estratégico de Calls-to-Action (CTAs).
+- Desenvolvimento da autoridade de marca, explorando a tecnologia utilizada como
+  diferencial de storytelling, com páginas dedicadas a cada uma das aplicações dessa
+  tecnologia.
+
+É importante ressaltar que o projeto NÃO requer a implementação de loja online ou
+qualquer tipo de meio de pagamento.
+
+Categoria: TI e Programação
+Subcategoria: Programação
+Qual é o alcance do projeto? Alteração média
+Prazo de entrega: Não estabelecido
+
+Habilidades necessárias: Programação, HTML, CSS, JavaScript, Responsive Web Design,
+SEO, Web Design
+
+Orçamento: USD 250 - 500

@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aurora · Painel de Recebimentos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<style>
+  :root{
+    --bg0:#05070c; --bg1:#0a1420; --bg2:#0d2432;
+    --glass: rgba(255,255,255,.045);
+    --glass-strong: rgba(255,255,255,.075);
+    --glass-brd: rgba(255,255,255,.10);
+    --ink:#eef3f8; --ink-dim:#93a3ba; --ink-faint:#5c6b82;
+    --lime:#c8ff4d; --lime-soft:#e4ffa8;
+    --teal:#3fe3c8; --amber:#ffc857; --coral:#ff6f91;
+    --grey-dim:#3a4557;
+    --radius:22px; --radius-sm:14px;
+    --font-display:'Space Grotesk',sans-serif;
+    --font-body:'Inter',sans-serif;
+    --ease:cubic-bezier(.16,1,.3,1);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;width:100%;overflow-x:hidden;}
+  body{
+    min-height:100vh;
+    font-family:var(--font-body);
+    color:var(--ink);
+    background:
+      radial-gradient(1100px 620px at 8% -8%, rgba(63,227,200,.10), transparent 58%),
+      radial-gradient(1000px 700px at 108% 6%, rgba(200,255,77,.07), transparent 55%),
+      radial-gradient(900px 600px at 50% 115%, rgba(255,111,145,.06), transparent 60%),
+      linear-gradient(165deg, var(--bg0) 0%, var(--bg1) 48%, var(--bg2) 100%);
+    background-attachment:fixed;
+    position:relative;
+  }
+  body::before{
+    content:'';
+    position:fixed; inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    opacity:.035;
+    mix-blend-mode:overlay;
+    pointer-events:none;
+    z-index:0;
+  }
+  .wrap{position:relative;z-index:1;max-width:1360px;margin:0 auto;padding:28px 24px 80px;}
+
+  /* ---------- top bar ---------- */
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:28px;}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-mark{
+    width:38px;height:38px;border-radius:11px;flex:none;
+    background:conic-gradient(from 210deg, var(--lime), var(--teal) 40%, var(--coral) 75%, var(--lime));
+    box-shadow:0 0 0 1px rgba(255,255,255,.12), 0 10px 24px -8px rgba(200,255,77,.35);
+  }
+  .brand-text .name{font-family:var(--font-display);font-weight:700;font-size:17px;letter-spacing:.01em;}
+  .brand-text .sub{font-size:12px;color:var(--ink-dim);}
+  .tabs{display:flex;gap:4px;background:var(--glass);border:1px solid var(--glass-brd);padding:4px;border-radius:100px;backdrop-filter:blur(18px);}
+  .tab-btn{
+    appearance:none;border:none;cursor:pointer;padding:9px 20px;border-radius:100px;
+    font-family:var(--font-body);font-weight:600;font-size:13.5px;color:var(--ink-dim);
+    background:transparent;transition:color .25s var(--ease), background .3s var(--ease);
+    white-space:nowrap;
+  }
+  .tab-btn.active{color:#08110b;background:linear-gradient(135deg, var(--lime), var(--lime-soft));box-shadow:0 6px 18px -6px rgba(200,255,77,.6);}
+  .updated-badge{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-faint);}
+  .dot-live{width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 0 rgba(200,255,77,.6);animation:pulse 2.2s infinite;}
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(200,255,77,.55);}
+    70%{box-shadow:0 0 0 9px rgba(200,255,77,0);}
+    100%{box-shadow:0 0 0 0 rgba(200,255,77,0);}
+  }
+
+  /* ---------- reveal animation ---------- */
+  .reveal{opacity:0;transform:translateY(18px);}
+  .reveal.in{animation:rise .7s var(--ease) forwards;}
+  @keyframes rise{to{opacity:1;transform:translateY(0);}}
+
+  /* ---------- glass card ---------- */
+  .glass{
+    background:var(--glass);
+    border:1px solid var(--glass-brd);
+    border-radius:var(--radius);
+    backdrop-filter:blur(22px) saturate(150%);
+    -webkit-backdrop-filter:blur(22px) saturate(150%);
+    box-shadow:0 24px 55px -24px rgba(0,0,0,.65), inset 0 1px 0 rgba(255,255,255,.07);
+    position:relative;
+    overflow:hidden;
+    transition:transform .35s var(--ease), box-shadow .35s var(--ease);
+  }
+  .glass::after{
+    content:'';position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);
+  }
+
+  /* ---------- filters ---------- */
+  .filters-card{padding:20px 22px;margin-bottom:22px;}
+  .filters-row{display:flex;gap:34px;flex-wrap:wrap;align-items:flex-start;}
+  .filter-group{display:flex;flex-direction:column;gap:10px;min-width:220px;flex:1;}
+  .filter-label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);font-weight:700;}
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{
+    appearance:none;cursor:pointer;border-radius:100px;padding:7px 14px;font-size:12.5px;font-weight:600;
+    font-family:var(--font-body);border:1px solid var(--glass-brd);background:rgba(255,255,255,.03);
+    color:var(--ink-dim); transition:all .22s var(--ease); white-space:nowrap;
+  }
+  .chip[data-hue="region"].active{background:rgba(63,227,200,.16);border-color:rgba(63,227,200,.55);color:#bdf7ec;box-shadow:0 0 0 1px rgba(63,227,200,.25) inset;}
+  .chip[data-hue="cat"].active{background:rgba(255,200,87,.16);border-color:rgba(255,200,87,.55);color:#ffe6ae;box-shadow:0 0 0 1px rgba(255,200,87,.25) inset;}
+  .chip:not(.active):not(:disabled):hover{border-color:rgba(255,255,255,.28);color:var(--ink);}
+  .chip:disabled{opacity:.28;cursor:not-allowed;text-decoration:line-through;text-decoration-color:rgba(255,255,255,.25);}
+  .clear-btn{
+    appearance:none;border:1px solid var(--glass-brd);background:transparent;color:var(--ink-faint);
+    border-radius:100px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-body);
+    transition:all .2s var(--ease); align-self:flex-start; margin-left:auto;
+  }
+  .clear-btn:hover{color:var(--ink);border-color:rgba(255,255,255,.35);}
+  .clear-btn[hidden]{display:none;}
+
+  /* ---------- KPI bento ---------- */
+  .kpi-grid{
+    display:grid;
+    grid-template-columns:minmax(300px,1.35fr) repeat(2,1fr);
+    grid-template-rows:repeat(2,1fr);
+    gap:18px;
+    margin-bottom:26px;
+  }
+  .kpi-hero{
+    grid-column:1; grid-row:1 / span 2;
+    padding:34px 34px 30px;
+    display:flex; flex-direction:column; justify-content:center;
+    container-type:inline-size;
+    min-height:230px;
+  }
+  .kpi-hero::before{
+    content:'';position:absolute; inset:-40% -20% auto auto; width:60%; height:140%;
+    background:radial-gradient(circle, rgba(200,255,77,.16), transparent 65%);
+    animation:breathe 5s ease-in-out infinite; pointer-events:none;
+  }
+  @keyframes breathe{0%,100%{opacity:.55;transform:scale(1);}50%{opacity:1;transform:scale(1.12);}}
+  .eyebrow{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);font-weight:700;margin-bottom:14px;position:relative;}
+  .hero-value{
+    font-family:var(--font-display); font-weight:700; color:var(--ink); letter-spacing:-0.01em;
+    font-size:clamp(2.4rem, 13cqw, 4.6rem); line-height:1.02; white-space:nowrap;
+    text-shadow:0 0 46px rgba(200,255,77,.28);
+    position:relative;
+  }
+  .hero-foot{margin-top:16px;font-size:13px;color:var(--ink-dim);position:relative;}
+  .hero-foot b{color:var(--lime-soft);font-weight:700;}
+
+  .kpi-mini{padding:22px 24px;display:flex;flex-direction:column;justify-content:center;container-type:inline-size;}
+  .mini-value{font-family:var(--font-display);font-weight:700;font-size:clamp(1.2rem, 12cqw, 2rem);line-height:1.05;white-space:nowrap;}
+  .mini-value.wrap-name{white-space:normal;word-break:normal;overflow-wrap:normal;font-size:clamp(1rem, 8cqw, 1.55rem);line-height:1.18;}
+  .mini-foot{margin-top:8px;font-size:12px;color:var(--ink-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+  /* ---------- charts ---------- */
+  .charts-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;position:relative;}
+  .chart-card{padding:22px 22px 14px;display:flex;flex-direction:column;}
+  .chart-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;}
+  .chart-title{font-family:var(--font-display);font-weight:600;font-size:16px;}
+  .chart-sub{font-size:11.5px;color:var(--ink-faint);}
+  .chart-canvas-wrap{position:relative;min-height:290px;flex:1 1 auto;margin-top:6px;}
+  .chip-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;position:relative;top:-1px;}
+
+  .empty-overlay{
+    position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;
+    background:rgba(6,9,14,.55); backdrop-filter:blur(6px); border-radius:var(--radius);
+    flex-direction:column; gap:10px; text-align:center; padding:30px;
+    opacity:0; pointer-events:none; transition:opacity .3s var(--ease);
+  }
+  .empty-overlay.show{opacity:1;pointer-events:auto;}
+  .empty-overlay .ico{font-size:26px;}
+  .empty-overlay .msg{font-size:14px;color:var(--ink-dim);max-width:320px;}
+  .empty-overlay .msg b{color:var(--ink);}
+
+  /* ---------- tooltips (chartjs uses canvas, custom css tooltip for external mode) ---------- */
+
+  /* ---------- Insights tab ---------- */
+  #panel-insights{display:none;}
+  .insights-head{margin-bottom:26px;max-width:640px;}
+  .insights-head h1{font-family:var(--font-display);font-size:clamp(1.5rem,3vw,2.1rem);margin:0 0 10px;}
+  .insights-head p{color:var(--ink-dim);font-size:14.5px;line-height:1.55;margin:0;}
+  .insight-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  .insight-card{padding:24px 24px 22px;}
+  .insight-card .tag{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;font-weight:700;color:var(--ink-faint);margin-bottom:14px;}
+  .insight-card h3{font-family:var(--font-display);font-size:18px;margin:0 0 10px;line-height:1.25;}
+  .insight-card p{font-size:13.6px;line-height:1.6;color:var(--ink-dim);margin:0;}
+  .insight-card p b{color:var(--ink);font-weight:700;}
+  .insight-card.wide{grid-column:span 3;}
+  .insight-card.half{grid-column:span 1;}
+  .stat-pill{display:inline-flex;align-items:baseline;gap:6px;background:rgba(255,255,255,.05);border:1px solid var(--glass-brd);border-radius:12px;padding:10px 14px;margin:12px 8px 2px 0;}
+  .stat-pill .n{font-family:var(--font-display);font-weight:700;font-size:19px;}
+  .stat-pill .l{font-size:11px;color:var(--ink-faint);}
+  .reco-list{margin:4px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;}
+  .reco-list li{display:flex;gap:12px;font-size:13.6px;line-height:1.55;color:var(--ink-dim);}
+  .reco-list li .num{flex:none;width:24px;height:24px;border-radius:8px;background:rgba(200,255,77,.14);color:var(--lime-soft);font-family:var(--font-display);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;}
+  .reco-list li b{color:var(--ink);}
+
+  footer.credit{margin-top:40px;text-align:center;font-size:11.5px;color:var(--ink-faint);}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:920px){
+    .kpi-grid{grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto;}
+    .kpi-hero{grid-column:1 / span 2; grid-row:1;}
+    .insight-grid{grid-template-columns:repeat(2,1fr);}
+    .insight-card.wide{grid-column:span 2;}
+  }
+  @media (max-width:760px){
+    .charts-grid{grid-template-columns:1fr;}
+  }
+  @media (max-width:600px){
+    .kpi-grid{grid-template-columns:1fr;}
+    .kpi-hero{grid-column:1;}
+    .insight-grid{grid-template-columns:1fr;}
+    .insight-card.wide{grid-column:span 1;}
+    .clear-btn{margin-left:0;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar reveal" style="animation-delay:.02s">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-text">
+        <div class="name">AURORA</div>
+        <div class="sub">Painel de Recebimentos · 1º semestre 2026</div>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="painel">Painel</button>
+      <button class="tab-btn" data-tab="insights">Insights</button>
+    </div>
+    <div class="updated-badge"><span class="dot-live"></span> dados da aba Recebimentos</div>
+  </div>
+
+  <div id="panel-painel">
+
+    <div class="glass filters-card reveal" style="animation-delay:.08s">
+      <div class="filters-row">
+        <div class="filter-group">
+          <div class="filter-label">Região</div>
+          <div class="chip-row" id="chips-region"></div>
+        </div>
+        <div class="filter-group">
+          <div class="filter-label">Categoria</div>
+          <div class="chip-row" id="chips-cat"></div>
+        </div>
+        <button class="clear-btn" id="clear-filters" hidden>Limpar filtros ✕</button>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="glass kpi-hero reveal" style="animation-delay:.14s">
+        <div class="eyebrow">Total recebido no semestre</div>
+        <div class="hero-value" id="kpi-total">R$ 0,00</div>
+        <div class="hero-foot" id="kpi-total-foot">em <b>222</b> recebimentos</div>
+      </div>
+      <div class="glass kpi-mini reveal" style="animation-delay:.19s">
+        <div class="eyebrow">Nº de recebimentos</div>
+        <div class="mini-value" id="kpi-count">0</div>
+        <div class="mini-foot">transações no período filtrado</div>
+      </div>
+      <div class="glass kpi-mini reveal" style="animation-delay:.23s">
+        <div class="eyebrow">Ticket médio</div>
+        <div class="mini-value" id="kpi-avg">R$ 0,00</div>
+        <div class="mini-foot">por recebimento</div>
+      </div>
+      <div class="glass kpi-mini reveal" style="animation-delay:.27s">
+        <div class="eyebrow">Melhor mês</div>
+        <div class="mini-value" id="kpi-month">—</div>
+        <div class="mini-foot" id="kpi-month-foot">—</div>
+      </div>
+      <div class="glass kpi-mini reveal" style="animation-delay:.31s">
+        <div class="eyebrow">Maior cliente</div>
+        <div class="mini-value wrap-name" id="kpi-client">—</div>
+        <div class="mini-foot" id="kpi-client-foot">—</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="glass chart-card reveal" style="animation-delay:.36s">
+        <div class="chart-head"><div class="chart-title">Caixa por mês</div><div class="chart-sub">jan – jun / 2026</div></div>
+        <div class="chart-canvas-wrap"><canvas id="chart-month"></canvas>
+          <div class="empty-overlay" id="empty-month"><div class="ico">◌</div><div class="msg">Nenhum recebimento para esta combinação de filtros.</div></div>
+        </div>
+      </div>
+      <div class="glass chart-card reveal" style="animation-delay:.40s">
+        <div class="chart-head"><div class="chart-title">Caixa por região</div><div class="chart-sub" id="region-sub">todas as regiões</div></div>
+        <div class="chart-canvas-wrap"><canvas id="chart-region"></canvas>
+          <div class="empty-overlay" id="empty-region"><div class="ico">◌</div><div class="msg">Nenhum recebimento para esta combinação de filtros.</div></div>
+        </div>
+      </div>
+      <div class="glass chart-card reveal" style="animation-delay:.44s">
+        <div class="chart-head"><div class="chart-title">Caixa por categoria</div><div class="chart-sub" id="cat-sub">todas as categorias</div></div>
+        <div class="chart-canvas-wrap"><canvas id="chart-cat"></canvas>
+          <div class="empty-overlay" id="empty-cat"><div class="ico">◌</div><div class="msg">Nenhum recebimento para esta combinação de filtros.</div></div>
+        </div>
+      </div>
+      <div class="glass chart-card reveal" style="animation-delay:.48s">
+        <div class="chart-head"><div class="chart-title">Ranking de clientes</div><div class="chart-sub">maior → menor</div></div>
+        <div class="chart-canvas-wrap"><canvas id="chart-client"></canvas>
+          <div class="empty-overlay" id="empty-client"><div class="ico">◌</div><div class="msg">Nenhum recebimento para esta combinação de filtros.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="credit">Distribuidora Aurora — dados consolidados a partir da aba Recebimentos · 1º semestre de 2026</footer>
+  </div>
+
+  <div id="panel-insights">
+    <div class="insights-head reveal" style="animation-delay:.05s">
+      <h1>Leitura do semestre</h1>
+      <p>Seis meses de caixa em 222 recebimentos, R$ 4.218.199,02 no total. O que sustenta esse número, onde ele é frágil, e o que fazer a respeito.</p>
+    </div>
+    <div class="insight-grid">
+
+      <div class="glass insight-card wide reveal" style="animation-delay:.10s">
+        <div class="tag">◐ Variação mensal</div>
+        <h3>O caixa subiu até abril, caiu forte em maio e só recuperou parte em junho</h3>
+        <p>O semestre cresceu de forma consistente de janeiro a abril — pico de <b>R$ 864.938,31</b>, <b>+20,3%</b> sobre março. Maio quebrou essa curva: <b>R$ 599.898,29</b>, uma queda de <b>-30,6%</b> em relação a abril e o pior mês do período. Junho recuperou <b>+23,6%</b> sobre maio, mas fechou em <b>R$ 741.426,85</b>, ainda <b>14,3% abaixo</b> do pico de abril.</p>
+        <div>
+          <span class="stat-pill"><span class="n">R$ 864,9 mil</span><span class="l">pico · abril</span></span>
+          <span class="stat-pill"><span class="n">R$ 599,9 mil</span><span class="l">vale · maio</span></span>
+          <span class="stat-pill"><span class="n">-30,6%</span><span class="l">queda mai vs abr</span></span>
+        </div>
+      </div>
+
+      <div class="glass insight-card half reveal" style="animation-delay:.15s">
+        <div class="tag">◐ Região</div>
+        <h3>Norte/PA lidera, mas depende de um único cliente</h3>
+        <p>Norte/PA é a região de maior caixa (<b>R$ 1.149.147,31</b>, 27,6% do caixa regionalizado) — e esse valor é inteiramente do Supermercado Familia, o maior cliente da base. Norte/AM é o extremo oposto: apenas <b>R$ 6.168,09</b> no semestre, o menor entre todas as regiões cadastradas.</p>
+      </div>
+
+      <div class="glass insight-card half reveal" style="animation-delay:.19s">
+        <div class="tag">◐ Categoria</div>
+        <h3>Hortifruti e Bebidas sustentam quase 70% do caixa</h3>
+        <p>Hortifruti responde por <b>38,96%</b> do total (<b>R$ 1.643.579,29</b>) e, junto com Bebidas, soma <b>69,1%</b> do caixa do semestre. No outro extremo, Higiene e Limpeza representa apenas <b>1,15%</b> (<b>R$ 48.367,59</b>) — uma categoria marginal na composição atual.</p>
+      </div>
+
+      <div class="glass insight-card half reveal" style="animation-delay:.23s">
+        <div class="tag">◐ Concentração</div>
+        <h3>O caixa está nas mãos de poucos clientes</h3>
+        <p>Os <b>3 maiores clientes</b> (Supermercado Familia, Adega Ponto do Vinho e Atacado União Comercial) respondem por <b>65,8%</b> de tudo que entrou. Os <b>5 maiores</b> chegam a <b>86,7%</b>. Só o Supermercado Familia, sozinho, é <b>27,2%</b> do caixa do semestre.</p>
+      </div>
+
+      <div class="glass insight-card half reveal" style="animation-delay:.27s">
+        <div class="tag">◐ Fora do cadastro</div>
+        <h3>Pagadores não cadastrados são pequenos, mas existem</h3>
+        <p>4 clientes fora do cadastro — Bar e Restaurante Estrela do Sul, Empório Vila Nova, Mercearia São Joaquim e Padaria e Confeitaria Trigo de Ouro — somaram <b>R$ 58.209,18</b> (<b>1,38%</b> do caixa), um recebimento cada, sem região nem categoria atribuída.</p>
+      </div>
+
+      <div class="glass insight-card wide reveal" style="animation-delay:.32s">
+        <div class="tag">◐ Recomendações</div>
+        <h3>O que eu levaria para a próxima reunião de diretoria</h3>
+        <ol class="reco-list">
+          <li><span class="num">1</span><span><b>Reduzir a dependência dos 3 maiores clientes</b> — 65,8% do caixa em três contas é risco de concentração; priorizar retenção deles e desenvolvimento dos próximos do ranking.</span></li>
+          <li><span class="num">2</span><span><b>Investigar a queda de maio</b> antes de tratá-la como ruído — foi o único mês fora da tendência de crescimento do semestre.</span></li>
+          <li><span class="num">3</span><span><b>Tratar Norte/PA como risco de cliente único</b>, não como força regional — qualquer mudança de prazo ou desconto com o Supermercado Familia afeta a região inteira.</span></li>
+          <li><span class="num">4</span><span><b>Cadastrar os 4 pagadores fora da base</b> — valor baixo hoje (1,38%), mas sem região/categoria eles ficam invisíveis nas análises se crescerem.</span></li>
+          <li><span class="num">5</span><span><b>Revisar o peso de Higiene e Limpeza</b> (1,15% do caixa) — decidir se vale manter o esforço comercial ali ou realocar para Hortifruti e Bebidas, que já sustentam 69% do resultado.</span></li>
+        </ol>
+      </div>
+
+    </div>
+    <footer class="credit">Leitura construída a partir dos totais consolidados na aba Recebimentos — nenhum número estimado.</footer>
+  </div>
+
+</div>
+
+<script id="raw-data" type="application/json">__ROWS_JSON__</script>
+<script>
+Chart.register(ChartDataLabels);
+
+const RAW = JSON.parse(document.getElementById('raw-data').textContent);
+const MES_NOMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+function periodKey(r){ return r.d.slice(0,7); }
+const PERIODS = Array.from(new Set(RAW.map(periodKey))).sort();
+const PERIOD_YEARS = new Set(PERIODS.map(p=>p.slice(0,4)));
+function periodLabel(key){
+  const y = key.slice(0,4), m = Number(key.slice(5,7));
+  return PERIOD_YEARS.size > 1 ? `${MES_NOMES[m-1].slice(0,3)}/${y.slice(2)}` : MES_NOMES[m-1];
+}
+const fmtBRL = n => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(n);
+const fmtBRL0 = n => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0}).format(n);
+const fmtInt = n => new Intl.NumberFormat('pt-BR').format(n);
+
+const HUE = { region:'#3fe3c8', cat:'#ffc857', month:'#c8ff4d', client:'#ff6f91', dim:'#3a4557' };
+
+function sumBy(rows, keyFn){
+  const m = new Map();
+  for(const r of rows){ const k = keyFn(r); m.set(k, (m.get(k)||0) + r.v); }
+  return m;
+}
+function wrapLabel(str, maxLen){
+  const words = str.split(' ');
+  const lines = []; let cur = '';
+  for(const w of words){
+    const t = cur ? cur + ' ' + w : w;
+    if(t.length > maxLen && cur){ lines.push(cur); cur = w; } else { cur = t; }
+  }
+  if(cur) lines.push(cur);
+  return lines;
+}
+
+// fixed ordered lists (by total desc, computed once)
+const REGION_ORDER = Array.from(sumBy(RAW, r=>r.r).entries()).sort((a,b)=>b[1]-a[1]).map(e=>e[0]);
+const CAT_ORDER = Array.from(sumBy(RAW, r=>r.g).entries()).sort((a,b)=>b[1]-a[1]).map(e=>e[0]);
+
+const state = { regions: new Set(), cats: new Set() };
+
+function regionHasRows(region, cats){
+  return RAW.some(r => r.r===region && (cats.size===0 || cats.has(r.g)));
+}
+function catHasRows(cat, regions){
+  return RAW.some(r => r.g===cat && (regions.size===0 || regions.has(r.r)));
+}
+function sanitizeState(){
+  for(const reg of Array.from(state.regions)) if(!regionHasRows(reg, state.cats)) state.regions.delete(reg);
+  for(const c of Array.from(state.cats)) if(!catHasRows(c, state.regions)) state.cats.delete(c);
+}
+
+function buildChips(){
+  const rWrap = document.getElementById('chips-region');
+  const cWrap = document.getElementById('chips-cat');
+  rWrap.innerHTML = ''; cWrap.innerHTML = '';
+  REGION_ORDER.forEach(region=>{
+    const b = document.createElement('button');
+    b.className = 'chip'; b.dataset.hue='region'; b.textContent = region;
+    if(state.regions.has(region)) b.classList.add('active');
+    b.disabled = !regionHasRows(region, state.cats);
+    b.addEventListener('click', ()=>{
+      if(state.regions.has(region)) state.regions.delete(region); else state.regions.add(region);
+      sanitizeState(); render();
+    });
+    rWrap.appendChild(b);
+  });
+  CAT_ORDER.forEach(cat=>{
+    const b = document.createElement('button');
+    b.className = 'chip'; b.dataset.hue='cat'; b.textContent = cat;
+    if(state.cats.has(cat)) b.classList.add('active');
+    b.disabled = !catHasRows(cat, state.regions);
+    b.addEventListener('click', ()=>{
+      if(state.cats.has(cat)) state.cats.delete(cat); else state.cats.add(cat);
+      sanitizeState(); render();
+    });
+    cWrap.appendChild(b);
+  });
+  document.getElementById('clear-filters').hidden = (state.regions.size===0 && state.cats.size===0);
+}
+
+document.getElementById('clear-filters').addEventListener('click', ()=>{
+  state.regions.clear(); state.cats.clear(); render();
+});
+
+// ---------- count-up ----------
+function countUp(el, to, formatter, duration=900){
+  const from = 0; const t0 = performance.now();
+  function step(t){
+    const p = Math.min(1, (t-t0)/duration);
+    const eased = 1 - Math.pow(1-p, 3);
+    el.textContent = formatter(from + (to-from)*eased);
+    if(p<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+let charts = {};
+
+function baseBarOptions(extra){
+  return Object.assign({
+    responsive:true, maintainAspectRatio:false,
+    animation:{duration:700, easing:'easeOutQuint'},
+    layout:{padding:{top:26}},
+    scales:{
+      x:{ grid:{display:false, drawBorder:false}, ticks:{ color:'#93a3ba', font:{family:'Inter', size:11}, autoSkip:false } },
+      y:{ display:false, grid:{display:false}, beginAtZero:true }
+    },
+    plugins:{
+      legend:{display:false},
+      tooltip:{
+        backgroundColor:'rgba(10,16,24,.92)', titleColor:'#eef3f8', bodyColor:'#c7d2e0',
+        borderColor:'rgba(255,255,255,.12)', borderWidth:1, padding:12, cornerRadius:12,
+        titleFont:{family:'Space Grotesk', weight:'600', size:13}, bodyFont:{family:'Inter', size:12},
+        displayColors:false
+      },
+      datalabels:{
+        color:'#eef3f8', font:{family:'Inter', weight:'700', size:11},
+        anchor:'end', align:'top', offset:2,
+        formatter:(v)=>fmtBRL0(v)
+      }
+    }
+  }, extra||{});
+}
+
+function destroyIf(key){ if(charts[key]){ charts[key].destroy(); delete charts[key]; } }
+function isNarrow(){ return window.innerWidth < 700; }
+
+function renderMonthChart(rows){
+  const wrap = document.getElementById('empty-month');
+  const totals = PERIODS.map(p => rows.filter(r=>periodKey(r)===p).reduce((s,r)=>s+r.v,0));
+  const allZero = totals.every(v=>v===0);
+  wrap.classList.toggle('show', allZero);
+  const ctx = document.getElementById('chart-month').getContext('2d');
+  const grad = ctx.createLinearGradient(0,0,0,260);
+  grad.addColorStop(0, HUE.month); grad.addColorStop(1, 'rgba(200,255,77,.25)');
+
+  const topClientsByMonth = PERIODS.map((p)=>{
+    const monthRows = rows.filter(r=>periodKey(r)===p);
+    const byC = Array.from(sumBy(monthRows, r=>r.c).entries()).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    return byC;
+  });
+
+  destroyIf('month');
+  charts.month = new Chart(ctx, {
+    type:'bar',
+    data:{ labels:PERIODS.map(periodLabel), datasets:[{ data:totals, backgroundColor:grad, borderRadius:8, maxBarThickness:56 }] },
+    options: baseBarOptions({
+      plugins:{
+        legend:{display:false},
+        datalabels:{ color:'#eef3f8', font:{family:'Inter', weight:'700', size:11}, anchor:'end', align:'top', offset:2, formatter:v=>fmtBRL0(v) },
+        tooltip:{
+          backgroundColor:'rgba(10,16,24,.94)', titleColor:'#eef3f8', bodyColor:'#c7d2e0',
+          borderColor:'rgba(255,255,255,.12)', borderWidth:1, padding:13, cornerRadius:12,
+          titleFont:{family:'Space Grotesk', weight:'600', size:13}, bodyFont:{family:'Inter', size:11.5},
+          displayColors:false,
+          callbacks:{
+            title:(items)=> items[0].label + '  ·  ' + fmtBRL(items[0].raw),
+            label:()=> null,
+            afterBody:(items)=>{
+              const idx = items[0].dataIndex;
+              const top = topClientsByMonth[idx];
+              if(!top.length) return ['Sem recebimentos neste mês.'];
+              const lines = ['', 'Maiores clientes do mês:'];
+              top.forEach(([name,val],i)=> lines.push(`${i+1}. ${name} — ${fmtBRL(val)}`));
+              return lines;
+            }
+          }
+        }
+      }
+    })
+  });
+}
+
+function renderRegionChart(rows){
+  const catFilterRows = RAW.filter(r => state.cats.size===0 || state.cats.has(r.g));
+  const totalsMap = sumBy(catFilterRows, r=>r.r);
+  const labels = REGION_ORDER;
+  const values = labels.map(l => totalsMap.get(l)||0);
+  const highlighted = labels.map(l => state.regions.size===0 || state.regions.has(l));
+  const allZero = values.every(v=>v===0);
+  document.getElementById('empty-region').classList.toggle('show', allZero);
+  document.getElementById('region-sub').textContent = state.regions.size ? `${state.regions.size} selecionada(s)` : 'todas as regiões';
+
+  const colors = values.map((v,i)=> highlighted[i] ? HUE.region : HUE.dim);
+  const clientsByRegion = {};
+  labels.forEach(l=>{ clientsByRegion[l] = Array.from(sumBy(catFilterRows.filter(r=>r.r===l), r=>r.c).entries()).sort((a,b)=>b[1]-a[1]); });
+  const total = values.reduce((a,b)=>a+b,0);
+
+  const narrow = isNarrow();
+  destroyIf('region');
+  const ctx = document.getElementById('chart-region').getContext('2d');
+  charts.region = new Chart(ctx, {
+    type:'bar',
+    data:{ labels: labels.map(l=> narrow ? l : wrapLabel(l,11)), datasets:[{ data:values, backgroundColor:colors, borderRadius:8, maxBarThickness:40 }] },
+    options: baseBarOptions({
+      scales:{
+        x:{ grid:{display:false, drawBorder:false}, ticks:{ color:'#93a3ba', font:{family:'Inter', size:10.5}, autoSkip:false, maxRotation: narrow?55:0, minRotation: narrow?55:0 } },
+        y:{ display:false, beginAtZero:true }
+      },
+      plugins:{
+        legend:{display:false},
+        datalabels:{ color:(c)=> highlighted[c.dataIndex] ? '#eef3f8' : '#7c8aa0', font:{family:'Inter', weight:'700', size:10.5}, anchor:'end', align:'top', offset:2, formatter:v=> v>0? fmtBRL0(v): '' },
+        tooltip:{
+          backgroundColor:'rgba(10,16,24,.94)', titleColor:'#eef3f8', bodyColor:'#c7d2e0',
+          borderColor:'rgba(255,255,255,.12)', borderWidth:1, padding:13, cornerRadius:12,
+          titleFont:{family:'Space Grotesk', weight:'600', size:13}, bodyFont:{family:'Inter', size:11.5}, displayColors:false,
+          callbacks:{
+            title:(items)=> labels[items[0].dataIndex] + '  ·  ' + fmtBRL(items[0].raw),
+            label:()=>null,
+            afterBody:(items)=>{
+              const l = labels[items[0].dataIndex];
+              const pct = total>0 ? (totalsMap.get(l)||0)/total*100 : 0;
+              const clients = clientsByRegion[l]||[];
+              const lines = ['', `${pct.toFixed(1)}% do caixa filtrado`];
+              if(clients.length){ lines.push('Clientes:'); clients.slice(0,4).forEach(([n,v])=>lines.push(`• ${n} — ${fmtBRL(v)}`)); }
+              return lines;
+            }
+          }
+        }
+      }
+    })
+  });
+}
+
+function renderCatChart(rows){
+  const regFilterRows = RAW.filter(r => state.regions.size===0 || state.regions.has(r.r));
+  const totalsMap = sumBy(regFilterRows, r=>r.g);
+  const labels = CAT_ORDER;
+  const values = labels.map(l => totalsMap.get(l)||0);
+  const highlighted = labels.map(l => state.cats.size===0 || state.cats.has(l));
+  const allZero = values.every(v=>v===0);
+  document.getElementById('empty-cat').classList.toggle('show', allZero);
+  document.getElementById('cat-sub').textContent = state.cats.size ? `${state.cats.size} selecionada(s)` : 'todas as categorias';
+
+  const colors = values.map((v,i)=> highlighted[i] ? HUE.cat : HUE.dim);
+  const clientsByCat = {};
+  labels.forEach(l=>{ clientsByCat[l] = Array.from(sumBy(regFilterRows.filter(r=>r.g===l), r=>r.c).entries()).sort((a,b)=>b[1]-a[1]); });
+  const total = values.reduce((a,b)=>a+b,0);
+
+  destroyIf('cat');
+  const ctx = document.getElementById('chart-cat').getContext('2d');
+  charts.cat = new Chart(ctx, {
+    type:'bar',
+    data:{ labels: labels.map(l=>wrapLabel(l,11)), datasets:[{ data:values, backgroundColor:colors, borderRadius:8, maxBarThickness:46 }] },
+    options: baseBarOptions({
+      plugins:{
+        legend:{display:false},
+        datalabels:{ color:(c)=> highlighted[c.dataIndex] ? '#eef3f8' : '#7c8aa0', font:{family:'Inter', weight:'700', size:10.5}, anchor:'end', align:'top', offset:2, formatter:v=> v>0? fmtBRL0(v): '' },
+        tooltip:{
+          backgroundColor:'rgba(10,16,24,.94)', titleColor:'#eef3f8', bodyColor:'#c7d2e0',
+          borderColor:'rgba(255,255,255,.12)', borderWidth:1, padding:13, cornerRadius:12,
+          titleFont:{family:'Space Grotesk', weight:'600', size:13}, bodyFont:{family:'Inter', size:11.5}, displayColors:false,
+          callbacks:{
+            title:(items)=> labels[items[0].dataIndex] + '  ·  ' + fmtBRL(items[0].raw),
+            label:()=>null,
+            afterBody:(items)=>{
+              const l = labels[items[0].dataIndex];
+              const pct = total>0 ? (totalsMap.get(l)||0)/total*100 : 0;
+              const clients = clientsByCat[l]||[];
+              const lines = ['', `${pct.toFixed(1)}% do caixa filtrado`, `${clients.length} cliente(s)`];
+              return lines;
+            }
+          }
+        }
+      }
+    })
+  });
+}
+
+function renderClientChart(rows){
+  const byC = Array.from(sumBy(rows, r=>r.c).entries()).sort((a,b)=>b[1]-a[1]);
+  const allZero = byC.length===0;
+  document.getElementById('empty-client').classList.toggle('show', allZero);
+  const labels = byC.map(e=>e[0]);
+  const values = byC.map(e=>e[1]);
+  const total = values.reduce((a,b)=>a+b,0);
+  const meta = {};
+  labels.forEach(l=>{
+    const cRows = rows.filter(r=>r.c===l);
+    meta[l] = { regiao: cRows[0]?.r, categoria: cRows[0]?.g, n: cRows.length };
+  });
+
+  destroyIf('client');
+  const ctx = document.getElementById('chart-client').getContext('2d');
+  const grad = ctx.createLinearGradient(0,0,300,0);
+  grad.addColorStop(0, '#ff9fb6'); grad.addColorStop(1, HUE.client);
+  const h = Math.max(220, labels.length*38);
+  document.getElementById('chart-client').parentElement.style.height = Math.min(h,620)+'px';
+
+  const clientWrapLen = isNarrow() ? 13 : 15;
+  charts.client = new Chart(ctx, {
+    type:'bar',
+    data:{ labels: labels.map(l=>wrapLabel(l,clientWrapLen)), datasets:[{ data:values, backgroundColor:grad, borderRadius:8, maxBarThickness:22 }] },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      animation:{duration:700, easing:'easeOutQuint'},
+      layout:{padding:{right:70, left:12}},
+      scales:{
+        x:{ display:false, grid:{display:false}, beginAtZero:true },
+        y:{ grid:{display:false, drawBorder:false}, ticks:{ color:'#93a3ba', font:{family:'Inter', size:11}, autoSkip:false },
+            afterFit:(scale)=>{ scale.width += 14; } }
+      },
+      plugins:{
+        legend:{display:false},
+        datalabels:{ color:'#eef3f8', font:{family:'Inter', weight:'700', size:11}, anchor:'end', align:'right', offset:4, formatter:v=>fmtBRL0(v) },
+        tooltip:{
+          backgroundColor:'rgba(10,16,24,.94)', titleColor:'#eef3f8', bodyColor:'#c7d2e0',
+          borderColor:'rgba(255,255,255,.12)', borderWidth:1, padding:13, cornerRadius:12,
+          titleFont:{family:'Space Grotesk', weight:'600', size:13}, bodyFont:{family:'Inter', size:11.5}, displayColors:false,
+          callbacks:{
+            title:(items)=> labels[items[0].dataIndex].join ? items[0].label : items[0].label,
+            label:(item)=>{
+              const l = byC[item.dataIndex][0];
+              const v = byC[item.dataIndex][1];
+              const m = meta[l];
+              const pct = total>0 ? v/total*100 : 0;
+              const region = m.regiao==='Não identificado' ? 'fora do cadastro' : m.regiao;
+              return [ fmtBRL(v), `${pct.toFixed(1)}% do caixa filtrado`, `${region} · ${m.categoria}`, `${m.n} recebimento(s)` ];
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderKPIs(rows){
+  const total = rows.reduce((s,r)=>s+r.v,0);
+  const count = rows.length;
+  const avg = count? total/count : 0;
+  const monthTotals = PERIODS.map(p => rows.filter(r=>periodKey(r)===p).reduce((s,r)=>s+r.v,0));
+  let bestMonthIdx = 0;
+  monthTotals.forEach((v,i)=>{ if(v>monthTotals[bestMonthIdx]) bestMonthIdx=i; });
+  const bestMonthVal = monthTotals[bestMonthIdx];
+  const byClient = Array.from(sumBy(rows, r=>r.c).entries()).sort((a,b)=>b[1]-a[1]);
+
+  countUp(document.getElementById('kpi-total'), total, fmtBRL);
+  document.getElementById('kpi-total-foot').innerHTML = count ? `em <b>${fmtInt(count)}</b> recebimentos` : 'nenhum recebimento no filtro atual';
+  countUp(document.getElementById('kpi-count'), count, v=>fmtInt(Math.round(v)));
+  countUp(document.getElementById('kpi-avg'), avg, fmtBRL);
+
+  if(count===0){
+    document.getElementById('kpi-month').textContent = '—';
+    document.getElementById('kpi-month-foot').textContent = 'sem dados';
+    document.getElementById('kpi-client').textContent = '—';
+    document.getElementById('kpi-client-foot').textContent = 'sem dados';
+  } else {
+    document.getElementById('kpi-month').textContent = periodLabel(PERIODS[bestMonthIdx]);
+    document.getElementById('kpi-month-foot').textContent = fmtBRL(bestMonthVal);
+    document.getElementById('kpi-client').textContent = byClient[0][0];
+    document.getElementById('kpi-client-foot').textContent = fmtBRL(byClient[0][1]);
+  }
+}
+
+function render(){
+  buildChips();
+  const rows = RAW.filter(r => (state.regions.size===0 || state.regions.has(r.r)) && (state.cats.size===0 || state.cats.has(r.g)));
+  renderKPIs(rows);
+  renderMonthChart(rows);
+  renderRegionChart(rows);
+  renderCatChart(rows);
+  renderClientChart(rows);
+}
+
+render();
+
+requestAnimationFrame(()=>{
+  document.querySelectorAll('#panel-painel .reveal, .topbar.reveal').forEach(el=>el.classList.add('in'));
+});
+
+// re-render charts when crossing the narrow/wide breakpoint (label rotation, wrapping)
+let _wasNarrow = isNarrow();
+let _resizeT;
+window.addEventListener('resize', ()=>{
+  clearTimeout(_resizeT);
+  _resizeT = setTimeout(()=>{
+    const nowNarrow = isNarrow();
+    if(nowNarrow !== _wasNarrow){ _wasNarrow = nowNarrow; render(); }
+  }, 200);
+});
+
+// ---------- tabs ----------
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.tab;
+    document.getElementById('panel-painel').style.display = tab==='painel' ? 'block' : 'none';
+    document.getElementById('panel-insights').style.display = tab==='insights' ? 'block' : 'none';
+    if(tab==='insights'){
+      requestAnimationFrame(()=>{
+        document.querySelectorAll('#panel-insights .reveal').forEach(el=>el.classList.add('in'));
+      });
+    }
+  });
+});
+</script>
+</body>
+</html>

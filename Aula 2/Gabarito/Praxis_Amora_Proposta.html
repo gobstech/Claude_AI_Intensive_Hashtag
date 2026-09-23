@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Praxis · Amora — Proposta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --tinta:#070a16;
+  --ambar:#f2b65c;   --ambar-2:#c98a2e;
+  --coral:#ff7060;   --coral-2:#c9453a;
+  --verde:#4fdc9c;   --verde-2:#22a271;
+  --azul:#6fa8ff;    --azul-2:#3a6fd0;
+  --violeta:#b48cff; --violeta-2:#7d55d6;
+  --texto:#e9ecf6;
+  --texto-2:#a6adc4;
+  --texto-3:#727a94;
+  --serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--tinta)}
+body{font-family:var(--sans);color:var(--texto);-webkit-font-smoothing:antialiased}
+
+/* ---------- fundo ---------- */
+#fundo{position:fixed;inset:0;z-index:0;overflow:hidden;background:var(--tinta)}
+.luz{position:absolute;inset:-25%;transition:opacity 1.1s ease;will-change:opacity}
+.mancha{position:absolute;border-radius:50%;filter:blur(90px);mix-blend-mode:screen}
+#luz-neutra{opacity:1}#luz-problema{opacity:0}#luz-ganho{opacity:0}
+@keyframes deriva-a{0%{transform:translate(0,0) scale(1)}50%{transform:translate(90px,-60px) scale(1.12)}100%{transform:translate(0,0) scale(1)}}
+@keyframes deriva-b{0%{transform:translate(0,0) scale(1.05)}50%{transform:translate(-110px,70px) scale(.94)}100%{transform:translate(0,0) scale(1.05)}}
+@keyframes deriva-c{0%{transform:translate(0,0)}50%{transform:translate(60px,90px)}100%{transform:translate(0,0)}}
+.d-a{animation:deriva-a 52s ease-in-out infinite}
+.d-b{animation:deriva-b 64s ease-in-out infinite}
+.d-c{animation:deriva-c 44s ease-in-out infinite}
+#grao{position:fixed;inset:0;z-index:3;pointer-events:none;opacity:.16;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E")}
+#vinheta{position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(ellipse 78% 68% at 50% 46%,transparent 42%,rgba(2,4,12,.55) 78%,rgba(2,4,12,.88) 100%)}
+
+/* ---------- palco ---------- */
+#palco{position:fixed;left:50%;top:50%;width:1600px;height:900px;
+  transform-origin:center center;z-index:4}
+
+/* ---------- moldura ---------- */
+.moldura{position:absolute;left:0;right:0;display:flex;align-items:center;
+  justify-content:space-between;padding:0 72px;z-index:20;pointer-events:none}
+.moldura.topo{top:34px}
+.marca{display:flex;align-items:baseline;gap:14px}
+.marca .p{font-family:var(--serif);font-size:23px;font-weight:600;letter-spacing:.30em;
+  color:#fff;opacity:.94}
+.marca .sep{width:1px;height:15px;background:rgba(255,255,255,.24);transform:translateY(1px)}
+.marca .c{font-family:var(--mono);font-size:14px;color:var(--texto-3);letter-spacing:.13em;text-transform:uppercase}
+.rotulo-tela{display:flex;align-items:baseline;gap:16px;font-family:var(--mono);font-size:14px;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--texto-3)}
+.rotulo-tela .n{color:var(--texto-2)}
+
+#regua{position:absolute;left:72px;right:72px;bottom:38px;height:22px;z-index:20;
+  display:flex;align-items:center;gap:11px;pointer-events:none}
+.tick{width:26px;height:2px;background:rgba(255,255,255,.15);border-radius:2px;
+  transition:background .35s ease,box-shadow .35s ease,width .35s ease}
+.tick.on{width:40px;background:var(--ambar);box-shadow:0 0 12px rgba(242,182,92,.65)}
+.tick.past{background:rgba(255,255,255,.32)}
+
+/* ---------- telas ---------- */
+.tela{position:absolute;inset:0;opacity:0;pointer-events:none;
+  transition:opacity .46s ease;z-index:10}
+.tela.on{opacity:1;pointer-events:auto;z-index:11}
+.corpo{position:absolute;left:72px;right:72px;top:104px;bottom:92px}
+h1.titulo{font-family:var(--serif);font-size:44px;font-weight:600;line-height:1.06;
+  letter-spacing:-.012em;color:#fff;margin-bottom:6px}
+.subtitulo{font-size:18px;color:var(--texto-2);line-height:1.45;max-width:1050px}
+
+/* ---------- quadros ---------- */
+.quadro{position:relative;border-radius:17px;padding:24px 26px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.10);
+  background:linear-gradient(155deg,rgba(255,255,255,.075),rgba(255,255,255,.022) 55%,rgba(255,255,255,.012));
+  backdrop-filter:blur(16px) saturate(125%);-webkit-backdrop-filter:blur(16px) saturate(125%);
+  box-shadow:0 20px 46px -22px rgba(0,0,0,.78),inset 0 1px 0 rgba(255,255,255,.055)}
+.quadro::before{content:"";position:absolute;top:0;left:16px;right:16px;height:2px;border-radius:2px;
+  background:var(--fio,var(--ambar));box-shadow:0 0 14px 1px var(--fio,var(--ambar));opacity:.9}
+.q-ambar{--fio:var(--ambar)} .q-coral{--fio:var(--coral)} .q-verde{--fio:var(--verde)}
+.q-azul{--fio:var(--azul)}   .q-violeta{--fio:var(--violeta)}
+.icone{position:absolute;top:19px;right:20px;width:30px;height:30px;opacity:.60;pointer-events:none}
+.icone svg{width:100%;height:100%;fill:none;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round}
+.q-ambar .icone svg{stroke:var(--ambar)} .q-coral .icone svg{stroke:var(--coral)}
+.q-verde .icone svg{stroke:var(--verde)} .q-azul .icone svg{stroke:var(--azul)}
+.q-violeta .icone svg{stroke:var(--violeta)}
+
+.rot{font-family:var(--mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--texto-3);margin-bottom:12px;padding-right:46px}
+.qtit{font-size:20px;font-weight:600;color:#fff;margin-bottom:10px;padding-right:46px;line-height:1.25}
+.qtxt{font-size:17px;line-height:1.52;color:var(--texto-2)}
+.qtxt strong{color:var(--texto);font-weight:600}
+.conta{font-family:var(--mono);font-size:13.5px;line-height:1.5;color:var(--texto-3);margin-top:12px}
+.nota{font-family:var(--mono);font-size:14px;color:var(--texto-3);line-height:1.5}
+
+/* ---------- numeros ---------- */
+.num{font-family:var(--serif);font-weight:600;line-height:.94;letter-spacing:-.022em;
+  background-clip:text;-webkit-background-clip:text;color:transparent;display:inline-block}
+.n-ambar{background-image:linear-gradient(168deg,#fff 6%,var(--ambar) 48%,var(--ambar-2) 100%)}
+.n-coral{background-image:linear-gradient(168deg,#fff 6%,var(--coral) 48%,var(--coral-2) 100%)}
+.n-verde{background-image:linear-gradient(168deg,#fff 6%,var(--verde) 48%,var(--verde-2) 100%)}
+.n-azul{background-image:linear-gradient(168deg,#fff 6%,var(--azul) 48%,var(--azul-2) 100%)}
+.n-violeta{background-image:linear-gradient(168deg,#fff 6%,var(--violeta) 48%,var(--violeta-2) 100%)}
+.n-72{font-size:72px} .n-60{font-size:60px} .n-52{font-size:52px} .n-44{font-size:44px}
+.rodape-premissa{position:absolute;left:0;right:0;bottom:-4px;font-family:var(--mono);
+  font-size:14.5px;color:var(--texto-3);line-height:1.5}
+
+/* ---------- grades ---------- */
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.graf{display:block;width:100%}
+.lado-coluna{display:flex;flex-direction:column;gap:22px}
+.mono{font-family:var(--mono);font-size:.94em}
+
+/* listas */
+ul.lista{list-style:none;margin-top:4px}
+ul.lista li{position:relative;padding-left:20px;font-size:17px;line-height:1.5;
+  color:var(--texto-2);margin-bottom:9px}
+ul.lista li::before{content:"";position:absolute;left:2px;top:9px;width:6px;height:6px;
+  border-radius:50%;background:var(--fio,var(--azul));opacity:.85}
+ol.prem{list-style:none;counter-reset:p;margin-top:2px}
+ol.prem li{counter-increment:p;position:relative;padding-left:32px;font-size:16px;
+  line-height:1.46;color:var(--texto-2);margin-bottom:11px}
+ol.prem li::before{content:counter(p);position:absolute;left:0;top:1px;width:21px;height:21px;
+  border-radius:6px;border:1px solid rgba(111,168,255,.42);color:var(--azul);
+  font-family:var(--mono);font-size:12.5px;display:flex;align-items:center;justify-content:center}
+ol.passos{list-style:none;counter-reset:s;margin-top:6px}
+ol.passos li{counter-increment:s;position:relative;padding-left:36px;font-size:17px;
+  line-height:1.48;color:var(--texto-2);margin-bottom:14px}
+ol.passos li::before{content:counter(s);position:absolute;left:0;top:0;width:25px;height:25px;
+  border-radius:8px;background:rgba(180,140,255,.15);border:1px solid rgba(180,140,255,.42);
+  color:var(--violeta);font-family:var(--mono);font-size:13px;
+  display:flex;align-items:center;justify-content:center}
+
+/* 01 capa */
+.capa-grade{display:grid;grid-template-columns:600px 1fr;gap:34px;align-items:start}
+.capa-nome{font-family:var(--serif);font-size:104px;font-weight:600;line-height:.94;
+  letter-spacing:-.03em;color:#fff;margin-bottom:20px}
+.capa-frase{font-size:20px;line-height:1.5;color:var(--texto-2);max-width:560px;margin-bottom:34px}
+.capa-chips{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.chip{padding:20px 22px}
+.chip .rot{margin-bottom:10px}
+.capa-dir{height:664px;display:flex;flex-direction:column}
+
+
+/* 03 cascata */
+.cascata-grade{display:grid;grid-template-columns:1fr 452px;gap:22px;margin-top:24px;height:504px}
+.cascata-grade .quadro{overflow:hidden}
+.cascata-grade > .quadro{display:flex;flex-direction:column}
+
+.lado-coluna > .quadro{flex:1}
+
+/* 04 */
+.hip{height:432px}
+.hip .conta{position:absolute;left:26px;right:26px;bottom:22px;
+  border-top:1px solid rgba(255,255,255,.10);padding-top:11px}
+
+/* 06 fases */
+.fases-grade{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-top:16px;height:406px;
+  transition:grid-template-columns .5s cubic-bezier(.22,.9,.28,1)}
+.fase{transition:opacity .45s ease;opacity:.34;display:flex;flex-direction:column}
+.fase.aberta{opacity:1}
+.fase .fase-itens,.fase .qtit{transition:opacity .35s ease}
+.fase:not(.aberta) .fase-itens{opacity:0;pointer-events:none;visibility:hidden;height:0;overflow:hidden;margin:0}
+.fase:not(.aberta) .qtit{opacity:.75}
+.fase-fechada{font-family:var(--mono);font-size:14px;color:var(--texto-3);
+  margin-top:4px;opacity:0;transition:opacity .35s ease}
+.fase:not(.aberta) .fase-fechada{opacity:1}
+
+/* 07 tabela */
+table.tabela{width:100%;border-collapse:collapse}
+table.tabela th{font-family:var(--mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--texto-3);text-align:left;padding:2px 16px 13px 0;font-weight:400}
+table.tabela th.dir,table.tabela td.dir{text-align:right;padding-right:52px}
+table.tabela td{font-size:17px;color:var(--texto-2);padding:15px 16px 15px 0;
+  border-top:1px solid rgba(255,255,255,.09);line-height:1.4}
+table.tabela td strong{color:var(--texto);font-weight:600}
+table.tabela tr.total td{border-top:2px solid rgba(242,182,92,.45);padding-top:18px;padding-bottom:6px;
+  font-size:18px;color:var(--texto)}
+
+/* 08 barra */
+.barra-quadro{margin-top:24px;padding:24px 30px 22px}
+.barra-topo{display:flex;justify-content:space-between;align-items:flex-start;padding-right:46px}
+.barra-legenda{display:flex;flex-direction:column;gap:7px;text-align:right;padding-top:4px}
+.lg-rot{font-family:var(--mono);font-size:13px;color:var(--texto-3);letter-spacing:.08em}
+.lg-val{font-family:var(--mono);font-size:15px;color:var(--texto-2);margin-left:8px}
+.barra-trilho{position:relative;margin-top:24px;height:58px}
+#barra{-webkit-appearance:none;appearance:none;width:100%;height:12px;border-radius:8px;
+  background:linear-gradient(90deg,rgba(255,255,255,.10),rgba(255,255,255,.20));
+  outline:none;margin:14px 0 0;cursor:pointer;position:relative;z-index:2}
+#barra::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;
+  background:radial-gradient(circle at 34% 30%,#fff,var(--tom,#4fdc9c));
+  border:2px solid rgba(255,255,255,.85);cursor:grab;
+  box-shadow:0 0 20px 3px var(--tom-glow,rgba(79,220,156,.55))}
+#barra::-moz-range-thumb{width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.85);
+  background:var(--tom,#4fdc9c);cursor:grab;box-shadow:0 0 20px 3px var(--tom-glow,rgba(79,220,156,.55))}
+.barra-preenche{position:absolute;left:0;top:14px;height:12px;border-radius:8px;z-index:1;
+  background:linear-gradient(90deg,rgba(255,255,255,.30),var(--tom,#4fdc9c))}
+.marca-limiar{position:absolute;top:15px;bottom:13px;width:2px;background:rgba(255,255,255,.62);
+  z-index:3;pointer-events:none}
+.marca-limiar span{position:absolute;top:-22px;left:50%;transform:translateX(-50%);
+  font-family:var(--mono);font-size:13px;color:var(--texto-2);white-space:nowrap}
+.barra-veredito{margin-top:30px;font-size:19px;line-height:1.4;font-weight:500;padding-right:150px}
+.btn-padrao{position:absolute;right:26px;bottom:20px;font-family:var(--mono);font-size:13px;
+  color:var(--texto-3);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);
+  border-radius:8px;padding:7px 13px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .3s}
+.btn-padrao.ver{opacity:1;pointer-events:auto}
+.btn-padrao:hover{color:var(--texto);background:rgba(255,255,255,.10)}
+.retorno-grade{margin-top:22px}
+.retorno-grade .quadro{height:238px}
+
+/* 10 */
+.fora-grade{margin-top:26px;grid-template-rows:1fr 1fr;height:568px}
+.fora{display:flex;flex-direction:column}
+
+/* 12 */
+.fim-grade{display:grid;grid-template-columns:1fr 620px;gap:22px;margin-top:24px;height:544px}
+.fim-linha{display:flex;flex-direction:column;gap:3px;margin-bottom:15px}
+.fim-rot{font-family:var(--mono);font-size:13px;letter-spacing:.13em;text-transform:uppercase;color:var(--texto-3)}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;
+    transition-duration:.001ms!important}
+}
+</style>
+</head>
+<body>
+<div id="fundo">
+  <div class="luz" id="luz-neutra">
+    <div class="mancha d-a" style="width:900px;height:760px;left:-4%;top:-16%;background:rgba(96,86,220,.30)"></div>
+    <div class="mancha d-b" style="width:840px;height:700px;right:-8%;top:8%;background:rgba(40,96,190,.26)"></div>
+    <div class="mancha d-c" style="width:760px;height:640px;left:26%;bottom:-24%;background:rgba(150,110,60,.17)"></div>
+  </div>
+  <div class="luz" id="luz-problema">
+    <div class="mancha d-b" style="width:900px;height:740px;left:2%;top:-12%;background:rgba(196,52,64,.30)"></div>
+    <div class="mancha d-a" style="width:800px;height:700px;right:-6%;bottom:-16%;background:rgba(170,44,120,.26)"></div>
+  </div>
+  <div class="luz" id="luz-ganho">
+    <div class="mancha d-c" style="width:900px;height:740px;right:-4%;top:-14%;background:rgba(34,150,110,.30)"></div>
+    <div class="mancha d-a" style="width:820px;height:680px;left:-6%;bottom:-18%;background:rgba(150,116,44,.24)"></div>
+  </div>
+</div>
+<div id="vinheta"></div>
+<div id="grao"></div>
+
+<div id="palco">
+  <div class="moldura topo">
+    <div class="marca"><span class="p">PRAXIS</span><span class="sep"></span><span class="c">Amora</span></div>
+    <div class="rotulo-tela"><span id="rot-nome">Capa</span><span class="n" id="rot-num">01 / 12</span></div>
+  </div>
+  <div id="regua"></div>
+  <div id="telas">
+
+  <!-- ============ 01 CAPA ============ -->
+  <section class="tela" data-rot="Capa" data-luz="neutra">
+    <div class="corpo capa-grade">
+      <div class="capa-esq">
+        <div class="rot" style="margin-bottom:18px">Proposta de projeto · Praxis Consultoria</div>
+        <div class="capa-nome">Amora</div>
+        <p class="capa-frase">Doze meses para fazer o cliente da Amora comprar uma segunda vez — e para deixar essa rotina rodando com o time de vocês.</p>
+        <div class="capa-chips">
+          <div class="quadro q-ambar chip">
+            <div class="icone"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M9.6 9.9h4.2M9.6 14.1h4.2"/></svg></div>
+            <div class="rot">Valor total</div><div class="num n-ambar n-44">R$ 41.850</div>
+          </div>
+          <div class="quadro q-azul chip">
+            <div class="icone"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7.4V12l3 1.8"/></svg></div>
+            <div class="rot">Prazo</div><div class="num n-azul n-44">12 meses</div>
+          </div>
+          <div class="quadro q-violeta chip">
+            <div class="icone"><svg viewBox="0 0 24 24"><rect x="4" y="6.5" width="16" height="12" rx="2"/><path d="M4 10.5h16M8 4.5v4"/></svg></div>
+            <div class="rot">Entrada · 30%</div><div class="num n-violeta n-44">R$ 12.555</div>
+          </div>
+          <div class="quadro q-violeta chip">
+            <div class="icone"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7.4V12l3.2 1.9"/></svg></div>
+            <div class="rot">Validade</div><div class="num n-violeta n-44">30 dias</div>
+          </div>
+        </div>
+      </div>
+      <div class="quadro q-coral capa-dir">
+        <div class="icone"><svg viewBox="0 0 24 24"><path d="M4 7.5l5.5 6 3.5-3.2 6.8 6.4"/><path d="M19.8 12.4v4.3h-4.2"/></svg></div>
+        <div class="rot">Recompra em 12 meses, por safra</div>
+        <div class="qtit" style="margin-bottom:2px">De 34,0% para 21,0% em dezoito safras</div>
+        <svg id="svg-capa" viewBox="0 0 770 510" class="graf" style="height:510px"></svg>
+        <div class="nota" style="margin-top:2px">Fonte: aba “Recompra por safra”, planilha Amora_Numeros.<br>Números informados pela Amora. Não auditados pela Praxis.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 O PROBLEMA ============ -->
+  <section class="tela" data-rot="O problema" data-luz="problema">
+    <div class="corpo">
+      <h1 class="titulo">O problema em três números</h1>
+      <p class="subtitulo">A Amora vende mais e ganha menos. Estes três números dizem por quê.</p>
+      <div class="g3" style="margin-top:30px">
+        <div class="quadro q-coral" style="height:352px">
+          <div class="icone"><svg viewBox="0 0 24 24"><path d="M6 5.5h12l-4.6 6.4v5.4l-2.8 1.6v-7z"/></svg></div>
+          <div class="rot">Recompra hoje</div>
+          <div class="num n-coral n-72">21,0%</div>
+          <p class="qtxt" style="margin-top:16px">De cada 100 clientes que compram pela primeira vez, 21 voltam dentro de doze meses. Os outros 79 compram uma vez e somem.</p>
+          <div class="conta">safra ago/25 · 123 de 585 clientes<br>123 ÷ 585 = 21,0%</div>
+        </div>
+        <div class="quadro q-coral" style="height:352px">
+          <div class="icone"><svg viewBox="0 0 24 24"><path d="M5 7l6 6.6 3.2-3 4.8 5.2"/><path d="M19 11.8v5h-4.4"/></svg></div>
+          <div class="rot">Queda em doze meses</div>
+          <div class="num n-coral n-72">9,1 pts</div>
+          <p class="qtxt" style="margin-top:16px">A safra de ago/24 recomprava 30,1%. A de ago/25 recompra 21,0%. São <strong>701 clientes por ano</strong> que antes voltavam e agora não voltam.</p>
+          <div class="conta">30,1% − 21,0% = 9,1 pontos<br>9,1% × 7.700 clientes novos = 701<br>701 × R$ 113,15 = R$ 79.287 de margem</div>
+        </div>
+        <div class="quadro q-ambar" style="height:352px">
+          <div class="icone"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M9.6 9.9h4.2M9.6 14.1h4.2"/></svg></div>
+          <div class="rot">Custo por cliente novo</div>
+          <div class="num n-ambar n-72">R$ 118,17</div>
+          <p class="qtxt" style="margin-top:16px">Era R$ 72,43 no ano fiscal anterior. Subiu <strong>63,2%</strong>. Comprar cliente novo ficou caro na mesma hora em que ele passou a render menos.</p>
+          <div class="conta">R$ 909.900 ÷ 7.700 = R$ 118,17<br>R$ 510.600 ÷ 7.050 = R$ 72,43</div>
+        </div>
+      </div>
+      <div class="rodape-premissa">Todos os números desta tela foram informados pela Amora na reunião de diagnóstico preliminar e <strong>ainda não foram auditados pela Praxis</strong>. Auditar é a primeira entrega da Fase 1.</div>
+    </div>
+  </section>
+
+  <!-- ============ 03 POR QUE A MARGEM CAIU ============ -->
+  <section class="tela" data-rot="Por que caiu" data-luz="problema">
+    <div class="corpo">
+      <h1 class="titulo">O faturamento subiu 18%. A margem caiu 9%.</h1>
+      <p class="subtitulo">Margem de contribuição depois da mídia, ano fiscal contra ano fiscal. A cascata mostra em que ponto a conta virou.</p>
+      <div class="cascata-grade">
+        <div class="quadro q-ambar">
+          <div class="icone"><svg viewBox="0 0 24 24"><path d="M4 19V9M9.3 19V5M14.7 19v-7M20 19v-4"/></svg></div>
+          <div class="rot">Margem depois da mídia · ano fiscal set–ago</div>
+          <svg id="svg-cascata" viewBox="0 0 930 420" class="graf" style="height:420px"></svg>
+        </div>
+        <div class="lado-coluna">
+          <div class="quadro q-coral">
+            <div class="icone"><svg viewBox="0 0 24 24"><path d="M12 4.6v14.8M7.2 14.4L12 19.4l4.8-5"/></svg></div>
+            <div class="rot">As duas variações</div>
+            <p class="qtxt">Faturamento <strong>+18,0%</strong><br>Investimento em mídia <strong>+78,2%</strong><br>Clientes novos <strong>+9,2%</strong><br>Recompra <strong>30,1% → 21,0%</strong></p>
+            <div class="conta">R$ 3.559.322 → R$ 4.200.000<br>R$ 510.600 → R$ 909.900<br>7.050 → 7.700 clientes novos</div>
+          </div>
+          <div class="quadro q-verde">
+            <div class="icone"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.4"/><path d="M15.6 15.6L20 20"/></svg></div>
+            <div class="qtit">Onde está o problema de verdade</div>
+            <p class="qtxt">O preço da mídia subiu, e a Amora não controla isso. O que ela controla é quantos pedidos cada cliente comprado gera. Hoje gera quase um só — então cada ponto de faturamento a mais precisa ser comprado de novo, ao preço novo.</p>
+          </div>
+        </div>
+      </div>
+      <div class="rodape-premissa">A cascata fecha exata: R$ 1.126.688 + R$ 294.712 − R$ 322.490 − R$ 76.810 = R$ 1.022.100. Números informados pela Amora, não auditados.</div>
+    </div>
+  </section>
+
+  <!-- ============ 04 ONDE O DINHEIRO VAZA ============ -->
+  <section class="tela" data-rot="Hipóteses" data-luz="problema">
+    <div class="corpo">
+      <h1 class="titulo">Onde o dinheiro está vazando</h1>
+      <p class="subtitulo">Três hipóteses. O diagnóstico confirma ou derruba cada uma, e cada uma tem uma entrega correspondente na Fase 2.</p>
+      <div class="g3" style="margin-top:28px">
+        <div class="quadro q-coral hip">
+          <div class="icone"><svg viewBox="0 0 24 24"><rect x="3.6" y="6" width="16.8" height="12" rx="2"/><path d="M3.6 8l8.4 5.6L20.4 8"/></svg></div>
+          <div class="rot">Hipótese 1</div>
+          <div class="qtit">A segunda compra nunca é pedida</div>
+          <p class="qtxt">A base tem 34.000 cadastros e recebe dois disparos por mês, iguais para todo mundo. O módulo de automação da ferramenta está pago e não é usado. A segunda compra vem, em média, 74 dias depois da primeira — e nesse intervalo não sai nada dirigido a quem comprou.</p>
+          <div class="conta">Como confirma: a Fase 1 abre a recompra por origem, produto e faixa de ticket, e conta quantos clientes recebem contato dentro dos 74 dias.</div>
+        </div>
+        <div class="quadro q-coral hip">
+          <div class="icone"><svg viewBox="0 0 24 24"><circle cx="9" cy="8.6" r="3.2"/><path d="M3.6 18.6c0-3 2.4-5 5.4-5s5.4 2 5.4 5"/><path d="M16.4 9.4h4.2M18.5 7.3v4.2"/></svg></div>
+          <div class="rot">Hipótese 2</div>
+          <div class="qtit">Ninguém responde pela recompra</div>
+          <p class="qtxt">A própria planilha da Amora registra o responsável pela recompra como não definido. Número sem dono não melhora: ninguém decide o disparo, ninguém lê o resultado, ninguém corrige na semana seguinte.</p>
+          <div class="conta">Como confirma: a auditoria da Fase 1 mapeia quem hoje decide disparo, quem mede recompra e com que rotina — e se não houver rotina, ela aparece na hora.</div>
+        </div>
+        <div class="quadro q-coral hip">
+          <div class="icone"><svg viewBox="0 0 24 24"><path d="M6 5.5h12l-4.6 6.4v5.4l-2.8 1.6v-7z"/></svg></div>
+          <div class="rot">Hipótese 3</div>
+          <div class="qtit">A mídia traz o cliente que compra uma vez</div>
+          <p class="qtxt">O custo por cliente novo subiu 63,2% e a recompra caiu junto. Pode ser mix de campanha: verba concentrada em anúncio que atrai quem compra por preço e não volta. Pode também não ser — e nesse caso a hipótese cai.</p>
+          <div class="conta">Como confirma: a Fase 1 abre a recompra por origem. Se a recompra for parecida entre as origens, a hipótese está derrubada e a verba não muda por esse motivo.</div>
+        </div>
+      </div>
+      <div class="rodape-premissa">São hipóteses, não conclusões. Se o diagnóstico apontar outra causa, o plano da Fase 2 muda, com aprovação da Amora e <strong>sem alteração de preço</strong>.</div>
+    </div>
+  </section>
+
+  <!-- ============ 05 O QUE A PRAXIS ENTREGA ============ -->
+  <section class="tela" data-rot="Entregas" data-luz="neutra">
+    <div class="corpo">
+      <h1 class="titulo">O que fica na mão da Amora</h1>
+      <p class="subtitulo">Artefato é coisa que continua existindo depois que a Praxis sai da sala. Esta é a lista inteira.</p>
+      <div class="g2" style="margin-top:28px">
+        <div class="quadro q-azul" style="height:398px">
+          <div class="icone"><svg viewBox="0 0 24 24"><path d="M5.6 4.6h9l4.8 4.8v10H5.6z"/><path d="M14.6 4.6v4.8h4.8M8.6 13h6.8M8.6 16.2h4.6"/></svg></div>
+          <div class="rot">Fase 1 · Diagnóstico</div>
+          <ul class="lista">
+            <li>Leitura do dado de venda dos últimos 24 meses, escrita e entregue.</li>
+            <li>Recompra aberta por origem, por produto e por faixa de ticket.</li>
+            <li>Auditoria da estrutura de campanha e do funil de aquisição.</li>
+            <li>Plano com os três pontos que mais valem dinheiro, com a conta de quanto cada um vale.</li>
+          </ul>
+          <div class="rot" style="margin-top:22px">Fase 2 · Implementação</div>
+          <ul class="lista">
+            <li>Campanhas e funil de aquisição reestruturados e rodando.</li>
+            <li>Sequências de recompra montadas na ferramenta que a Amora já paga.</li>
+            <li>Base segmentada por comportamento de compra.</li>
+            <li>Painel único de clientes novos e recompra.</li>
+          </ul>
+        </div>
+        <div class="quadro q-azul" style="height:398px">
+          <div class="icone"><svg viewBox="0 0 24 24"><circle cx="9" cy="8.6" r="3.2"/><path d="M3.6 18.6c0-3 2.4-5 5.4-5s5.4 2 5.4 5"/><circle cx="17.4" cy="9.4" r="2.4"/><path d="M14.8 18.6c0-2.2 1.4-3.8 3.4-3.8s2.4 1 2.4 2.4"/></svg></div>
+          <div class="rot">Fase 3 · Operação assistida</div>
+          <ul class="lista">
+            <li>Rotina semanal de leitura, com responsável nomeado, dia fixo e pauta escrita.</li>
+            <li>Uma pessoa do time da Amora formada durante o projeto para assumir o comando.</li>
+            <li>Passagem do comando a partir do 6º mês da fase, com a Praxis ainda dentro.</li>
+            <li>Registro de tudo o que foi mudado, para a Amora continuar sozinha depois.</li>
+          </ul>
+          <div class="quadro q-verde" style="margin-top:24px;padding:18px 20px">
+            <div class="qtit" style="font-size:18px;margin-bottom:6px;padding-right:0">O que a Praxis não entrega</div>
+            <p class="qtxt" style="font-size:16.5px">Resultado. A Praxis responde por método, por prazo e pelo que vai ser medido.</p>
+          </div>
+        </div>
+      </div>
+      <div class="rodape-premissa">Toda entrega é montada dentro das ferramentas que a Amora já contratou. Nada aqui exige compra de software novo.</div>
+    </div>
+  </section>
+
+  <!-- ============ 06 AS TRÊS FASES ============ -->
+  <section class="tela" data-rot="As fases" data-luz="neutra">
+    <div class="corpo">
+      <h1 class="titulo">As três fases</h1>
+      <p class="subtitulo">Doze meses corridos. O diagnóstico começa cinco dias úteis depois do aceite.</p>
+      <svg id="svg-linha" viewBox="0 0 1456 96" class="graf" style="margin-top:22px;height:96px"></svg>
+      <div class="fases-grade" id="fases-grade">
+        <div class="quadro q-violeta fase" data-fase="0">
+          <div class="icone"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.4"/><path d="M15.6 15.6L20 20"/></svg></div>
+          <div class="rot">Fase 1 · 3 semanas</div>
+          <div class="qtit">Diagnóstico</div>
+          <ul class="lista fase-itens">
+            <li>Leitura do dado de venda dos últimos 24 meses.</li>
+            <li>Auditoria da estrutura de campanha e do funil.</li>
+            <li>Recompra aberta por origem, produto e faixa de ticket.</li>
+            <li>Plano com os três pontos que mais valem dinheiro.</li>
+          </ul>
+          <div class="fase-fechada">3 semanas</div>
+        </div>
+        <div class="quadro q-violeta fase" data-fase="1">
+          <div class="icone"><svg viewBox="0 0 24 24"><path d="M14.8 4.8l4.4 4.4-9.4 9.4H5.4v-4.4z"/><path d="M12.6 7l4.4 4.4"/></svg></div>
+          <div class="rot">Fase 2 · 12 semanas</div>
+          <div class="qtit">Implementação</div>
+          <ul class="lista fase-itens">
+            <li>Reestruturação das campanhas e do funil de aquisição.</li>
+            <li>Sequências de recompra na ferramenta que a Amora já usa.</li>
+            <li>Segmentação da base por comportamento.</li>
+            <li>Painel único de clientes novos e recompra.</li>
+          </ul>
+          <div class="fase-fechada">12 semanas</div>
+        </div>
+        <div class="quadro q-violeta fase" data-fase="2">
+          <div class="icone"><svg viewBox="0 0 24 24"><circle cx="9" cy="8.6" r="3.2"/><path d="M3.6 18.6c0-3 2.4-5 5.4-5s5.4 2 5.4 5"/><path d="M16.4 12.4l1.8 1.8 3.4-3.4"/></svg></div>
+          <div class="rot">Fase 3 · 9 meses</div>
+          <div class="qtit">Operação assistida</div>
+          <ul class="lista fase-itens">
+            <li>A Praxis opera junto com o time da Amora.</li>
+            <li>Rotina semanal de leitura, com responsável e pauta.</li>
+            <li>Formação de uma pessoa do time da Amora.</li>
+            <li>Comando transferido a partir do 6º mês da fase.</li>
+          </ul>
+          <div class="fase-fechada">9 meses</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 07 INVESTIMENTO ============ -->
+  <section class="tela" data-rot="Investimento" data-luz="neutra">
+    <div class="corpo">
+      <h1 class="titulo">Investimento</h1>
+      <p class="subtitulo">Preço fechado por fase. Sem taxa por resultado, sem comissão sobre mídia, sem cobrança por hora.</p>
+      <div class="quadro q-ambar" style="margin-top:26px">
+        <div class="icone"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M9.6 9.9h4.2M9.6 14.1h4.2"/></svg></div>
+        <table class="tabela">
+          <thead><tr><th>Fase</th><th>Prazo</th><th>Condição de pagamento</th><th class="dir">Valor</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1 · Diagnóstico</strong></td><td>3 semanas</td><td>Parcela única, ao fim da fase</td><td class="dir">R$ 6.800</td></tr>
+            <tr><td><strong>2 · Implementação</strong></td><td>12 semanas</td><td>Três parcelas de R$ 6.133,33, ao fim de cada bloco de quatro semanas — 2º, 3º e 4º mês</td><td class="dir">R$ 18.400</td></tr>
+            <tr><td><strong>3 · Operação assistida</strong></td><td>9 meses</td><td>Nove parcelas mensais de R$ 1.850, do 4º ao 12º mês</td><td class="dir">R$ 16.650</td></tr>
+            <tr class="total"><td><strong>Total do projeto</strong></td><td>12 meses</td><td>—</td><td class="dir"><span class="num n-ambar" style="font-size:34px">R$ 41.850</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="g3" style="margin-top:22px">
+        <div class="quadro q-violeta" style="height:186px">
+          <div class="icone"><svg viewBox="0 0 24 24"><rect x="4" y="6.5" width="16" height="12" rx="2"/><path d="M4 10.5h16M8 4.5v4M16 4.5v4"/></svg></div>
+          <div class="rot">Entrada</div>
+          <div class="num n-violeta n-44">R$ 12.555</div>
+          <div class="conta">30% de R$ 41.850, na assinatura.<br>Abate 30% de cada parcela seguinte.</div>
+        </div>
+        <div class="quadro q-violeta" style="height:186px">
+          <div class="icone"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7.4V12l3.2 1.9"/></svg></div>
+          <div class="rot">Validade</div>
+          <div class="num n-violeta n-44">30 dias</div>
+          <div class="conta">Dias corridos a partir da data de emissão.</div>
+        </div>
+        <div class="quadro q-verde" style="height:186px">
+          <div class="icone"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M6.6 6.6l10.8 10.8"/></svg></div>
+          <div class="rot">O que este preço não tem</div>
+          <p class="qtxt" style="font-size:16.5px;line-height:1.6">Taxa por resultado.<br>Comissão sobre a verba de mídia.<br>Cobrança por hora ou por relatório extra.</p>
+        </div>
+      </div>
+      <div class="rodape-premissa">A verba de mídia da Amora continua sendo paga direto à plataforma e <strong>está fora deste valor</strong>. No último ano fiscal ela foi de R$ 909.900.</div>
+    </div>
+  </section>
+
+  <!-- ============ 08 O RETORNO ============ -->
+  <section class="tela" data-rot="O retorno" data-luz="ganho">
+    <div class="corpo">
+      <h1 class="titulo">O retorno depende de um número só</h1>
+      <p class="subtitulo">Arraste até a recompra que <strong>vocês</strong> acham possível. Tudo nesta tela recalcula junto, e as telas seguintes também.</p>
+
+      <div class="quadro q-verde barra-quadro" id="barra-quadro">
+        <div class="icone"><svg viewBox="0 0 24 24"><path d="M4 16.5l5-5.4 3.4 3 7.6-8"/><path d="M20 6.1v4.4h-4.4"/></svg></div>
+        <div class="barra-topo">
+          <div>
+            <div class="rot" style="margin-bottom:6px">Recompra em 12 meses</div>
+            <div class="num n-verde" id="b-taxa" style="font-size:66px">27,6%</div>
+          </div>
+          <div class="barra-legenda">
+            <div><span class="lg-rot">hoje</span> <span class="lg-val">21,0%</span></div>
+            <div><span class="lg-rot">limiar de payback</span> <span class="lg-val" id="b-limiar">28,4%</span></div>
+            <div><span class="lg-rot">teto já praticado</span> <span class="lg-val">34,0%</span></div>
+          </div>
+        </div>
+        <div class="barra-trilho">
+          <div class="marca-limiar" id="marca-limiar"><span>28,4%</span></div>
+          <input type="range" id="barra" min="21.0" max="34.0" step="0.1" value="27.6">
+        </div>
+        <div class="barra-veredito" id="veredito">—</div>
+        <button id="btn-padrao" class="btn-padrao">voltar ao padrão</button>
+      </div>
+
+      <div class="g3 retorno-grade">
+        <div class="quadro q-verde">
+          <div class="icone"><svg viewBox="0 0 24 24"><circle cx="9" cy="8.6" r="3.2"/><path d="M3.6 18.6c0-3 2.4-5 5.4-5s5.4 2 5.4 5"/><path d="M16.4 9.4h4.2M18.5 7.3v4.2"/></svg></div>
+          <div class="rot">Clientes a mais que voltam</div>
+          <div class="num n-verde n-52" id="b-clientes">42</div>
+          <div class="conta" id="b-clientes-conta">642 × 6,6 pts = 42,4 por mês</div>
+        </div>
+        <div class="quadro q-ambar">
+          <div class="icone"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M9.6 9.9h4.2M9.6 14.1h4.2"/></svg></div>
+          <div class="rot">Margem a mais por ano · faixa</div>
+          <div class="num n-ambar" id="b-margem" style="font-size:38px">R$ 34.503 a R$ 80.507</div>
+          <div class="conta" id="b-margem-conta">provável R$ 57.505 · 42,4 × R$ 113,15 × 12</div>
+        </div>
+        <div class="quadro q-ambar">
+          <div class="icone"><svg viewBox="0 0 24 24"><path d="M4 16.5l5-5.4 3.4 3 7.6-8"/><path d="M20 6.1v4.4h-4.4"/></svg></div>
+          <div class="rot">Retorno por real investido · faixa</div>
+          <div class="num n-ambar n-52" id="b-retorno">0,89× a 2,08×</div>
+          <div class="conta" id="b-retorno-conta">margem acumulada em 18 meses ÷ R$ 41.850</div>
+        </div>
+      </div>
+      <div class="rodape-premissa">A faixa é sobre execução, não sobre a Amora: pior caso entrega 60% do ganho escolhido, melhor caso 140%. Decisão da Praxis, descrita na tela de premissas.</div>
+    </div>
+  </section>
+
+  <!-- ============ 09 QUANDO SE PAGA ============ -->
+  <section class="tela" data-rot="Payback" data-luz="ganho">
+    <div class="corpo">
+      <h1 class="titulo" id="t-payback">Se paga entre o 12º e o 14º mês — não no pior caso</h1>
+      <p class="subtitulo">Margem acumulada menos o que foi pago, mês a mês. O fundo da curva é exatamente o diagnóstico e a implementação — meses em que a Amora paga e ainda não vê nada acontecer.</p>
+      <div class="quadro q-verde" style="margin-top:20px;height:474px">
+        <div class="icone"><svg viewBox="0 0 24 24"><path d="M4 19.4V4.6M4 19.4h15.8"/><path d="M7 15.6l4-4.6 3 2.6 5-6.4"/></svg></div>
+        <svg id="svg-payback" viewBox="0 0 1404 420" class="graf" style="height:420px"></svg>
+      </div>
+      <div class="rodape-premissa">O ganho só começa a contar no 6º mês. A implementação termina no 4º e a segunda compra vem 74 dias depois da primeira — a conta joga fora dois meses de rampa, de propósito.</div>
+    </div>
+  </section>
+
+  <!-- ============ 10 FORA DO ESCOPO ============ -->
+  <section class="tela" data-rot="Fora do escopo" data-luz="neutra">
+    <div class="corpo">
+      <h1 class="titulo">O que não está incluído</h1>
+      <p class="subtitulo">Seis itens, com o motivo de cada um. Esta tela existe para vocês saberem exatamente o que vão ter que resolver por fora.</p>
+      <div class="g3 fora-grade">
+        <div class="quadro q-violeta fora">
+          <div class="icone"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M8.4 12h7.2"/></svg></div>
+          <div class="qtit">A verba de mídia</div>
+          <p class="qtxt">Paga direto por vocês à plataforma. A Praxis opera a conta e não toca no dinheiro — por isso não há comissão sobre ela.</p>
+        </div>
+        <div class="quadro q-violeta fora">
+          <div class="icone"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M8.4 12h7.2"/></svg></div>
+          <div class="qtit">Produção de anúncio, foto e vídeo</div>
+          <p class="qtxt">É trabalho de criação e de estúdio. A Praxis define o que precisa existir e quem produz é o time ou o fornecedor de vocês.</p>
+        </div>
+        <div class="quadro q-violeta fora">
+          <div class="icone"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M8.4 12h7.2"/></svg></div>
+          <div class="qtit">Licença de ferramenta</div>
+          <p class="qtxt">O projeto inteiro roda dentro do que a Amora já paga, incluindo o módulo de automação que já está no plano anual e hoje não é usado.</p>
+        </div>
+        <div class="quadro q-violeta fora">
+          <div class="icone"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M8.4 12h7.2"/></svg></div>
+          <div class="qtit">Desenvolvimento no site ou no aplicativo</div>
+          <p class="qtxt">Se o diagnóstico apontar mudança de código, a Praxis escreve o que precisa mudar e quem executa é o time de tecnologia de vocês.</p>
+        </div>
+        <div class="quadro q-violeta fora">
+          <div class="icone"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M8.4 12h7.2"/></svg></div>
+          <div class="qtit">Operação depois do 12º mês</div>
+          <p class="qtxt">O comando passa para a Amora a partir do 6º mês da Fase 3. Continuar depois disso é contrato novo, e só faz sentido se vocês quiserem.</p>
+        </div>
+        <div class="quadro q-coral fora">
+          <div class="icone"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M8.4 12h7.2"/></svg></div>
+          <div class="qtit">Garantia de resultado</div>
+          <p class="qtxt">A Praxis não promete que a recompra vai subir. Ela responde por método, por prazo e pelo que vai ser medido — e mede na frente de vocês toda semana.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 11 PREMISSAS ============ -->
+  <section class="tela" data-rot="Premissas" data-luz="neutra">
+    <div class="corpo">
+      <h1 class="titulo">As premissas</h1>
+      <p class="subtitulo">Mude uma premissa e o número muda junto. Elas estão aqui para vocês poderem discordar de uma delas em voz alta.</p>
+      <div class="g2" style="margin-top:24px">
+        <div class="quadro q-azul" style="height:452px">
+          <div class="icone"><svg viewBox="0 0 24 24"><path d="M12 4.2l6.4 2.6v5.4c0 3.6-2.6 6.2-6.4 7.6-3.8-1.4-6.4-4-6.4-7.6V6.8z"/></svg></div>
+          <div class="rot">Origem dos números</div>
+          <ol class="prem">
+            <li>Todos os números vieram da planilha <span class="mono">Amora_Numeros</span>, enviada pela Amora. <strong>Nenhum foi auditado pela Praxis.</strong> Auditar é a primeira entrega da Fase 1.</li>
+            <li>Ano fiscal set–ago. “Último ano” é set/25 a ago/26; “ano anterior” é set/24 a ago/25.</li>
+            <li>Recompra de hoje é a da safra de ago/25, a última que completou doze meses: 21,0%. Safras posteriores ainda não deram tempo de medir.</li>
+            <li>Margem por pedido = ticket médio × margem de contribuição = R$ 245,99 × 46% = <strong>R$ 113,15</strong>. A margem de 46% é informada pela Amora e é a mesma para toda a linha e todo canal.</li>
+            <li>Clientes novos por mês fixos em <strong>642</strong>, a média medida do último ano fiscal (7.700 ÷ 12). A projeção <strong>não</strong> conta com crescimento de volume.</li>
+            <li>O teto da barra é 34,0% porque é a melhor safra da série. A projeção não deixa a Amora projetar acima do que já praticou.</li>
+          </ol>
+        </div>
+        <div class="quadro q-azul" style="height:452px">
+          <div class="icone"><svg viewBox="0 0 24 24"><path d="M4 19.4V4.6M4 19.4h15.8"/><path d="M7 15.6l4-4.6 3 2.6 5-6.4"/></svg></div>
+          <div class="rot">Como a projeção foi construída</div>
+          <ol class="prem" start="7">
+            <li><strong>Cada cliente que volta faz um pedido a mais. Um só.</strong> A planilha conta cliente que voltou, não pedido que ele fez. A conta está subestimada de propósito: no último ano houve 9.374 pedidos de recorrentes contra cerca de 1.779 clientes que voltaram nas safras do período.</li>
+            <li>A Amora vende avulso, não assinatura. Por isso a conta não usa vida média nem evasão: usa a frequência de recompra observada.</li>
+            <li><strong>O ganho começa a contar no 6º mês.</strong> A implementação termina no 4º e a segunda compra vem 74 dias depois da primeira. Decisão da Praxis, conservadora de propósito.</li>
+            <li><strong>A faixa é sobre execução:</strong> pior caso entrega 60% do ganho escolhido na barra, provável 100%, melhor 140%. Decisão da Praxis, não medição da Amora. Nenhum cenário projeta acima de 34,0%, nem o melhor.</li>
+            <li>A janela da projeção é de <strong>18 meses</strong>; o projeto dura 12. A recompra se mede em doze meses por safra, então o ganho dos últimos meses do projeto só aparece depois dele.</li>
+            <li>A projeção <strong>ignora de propósito</strong> os clientes já comprados que ainda estão dentro da janela de doze meses. É ganho real deixado de fora da conta.</li>
+            <li><strong>Nada aqui é promessa.</strong> É o que a conta dá se as premissas acima se sustentarem. A Praxis responde por método, prazo e pelo que vai ser medido.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="rodape-premissa" id="prem-taxa">Faixa desta proposta calculada com a recompra em <strong>27,6%</strong>, valor escolhido na tela do retorno.</div>
+    </div>
+  </section>
+
+  <!-- ============ 12 PARA COMEÇAR ============ -->
+  <section class="tela" data-rot="Para começar" data-luz="ganho">
+    <div class="corpo">
+      <h1 class="titulo">Para começar</h1>
+      <p class="subtitulo">Cinco dias úteis depois do aceite, o diagnóstico começa.</p>
+      <div class="fim-grade">
+        <div class="lado-coluna">
+          <div class="quadro q-verde">
+            <div class="icone"><svg viewBox="0 0 24 24"><path d="M4 16.5l5-5.4 3.4 3 7.6-8"/><path d="M20 6.1v4.4h-4.4"/></svg></div>
+            <div class="rot">Onde a Amora chega · faixa</div>
+            <div class="fim-linha"><span class="fim-rot">Recompra em 12 meses</span><span class="num n-verde" id="f-taxa" style="font-size:32px">21,0% → 25,0% a 30,2%</span></div>
+            <div class="fim-linha"><span class="fim-rot">Custo de mídia por pedido</span><span class="num n-ambar" id="f-custo" style="font-size:32px">R$ 53,29 → R$ 52,36 a R$ 51,16</span></div>
+            <div class="fim-linha"><span class="fim-rot">Margem a mais por ano</span><span class="num n-ambar" id="f-margem" style="font-size:32px">R$ 34.503 a R$ 80.507</span></div>
+            <div class="conta" id="f-conta">Faixa de execução: 60% a 140% do ganho escolhido na barra. Números informados pela Amora, não auditados.</div>
+          </div>
+          <div class="quadro q-azul">
+            <div class="icone"><svg viewBox="0 0 24 24"><circle cx="9" cy="8.6" r="3.2"/><path d="M3.6 18.6c0-3 2.4-5 5.4-5s5.4 2 5.4 5"/><path d="M16.4 12.4l1.8 1.8 3.4-3.4"/></svg></div>
+            <div class="qtit">Quem fica no comando no fim</div>
+            <p class="qtxt">Uma pessoa do time da Amora, formada durante o projeto, com a rotina semanal na mão a partir do 6º mês da Fase 3. A Praxis sai; a rotina fica.</p>
+          </div>
+        </div>
+        <div class="quadro q-violeta">
+          <div class="icone"><svg viewBox="0 0 24 24"><path d="M8.6 6.4h11M8.6 12h11M8.6 17.6h11"/><path d="M4.4 6.4h.02M4.4 12h.02M4.4 17.6h.02"/></svg></div>
+          <div class="rot">Os passos</div>
+          <ol class="passos">
+            <li><strong>Aceite e entrada.</strong> Assinatura da proposta e pagamento de R$ 12.555.</li>
+            <li><strong>Acessos.</strong> Plataforma de e-commerce, contas de mídia, ferramenta de e-mail e automação, e o relatório de vendas dos últimos 24 meses.</li>
+            <li><strong>Um responsável indicado.</strong> Uma pessoa da Amora com autonomia para decidir, que vai receber o comando no fim.</li>
+            <li><strong>Agenda das primeiras atividades.</strong> Reunião de abertura na semana 1, leitura do dado na semana 1 e 2, entrega do plano na semana 3.</li>
+            <li><strong>Fase 1 começa em 5 dias úteis</strong> depois do aceite.</li>
+          </ol>
+          <div class="quadro q-ambar" style="margin-top:20px;padding:16px 20px">
+            <p class="qtxt" style="font-size:16.5px">Validade de <strong>30 dias corridos</strong> a partir da data de emissão. Depois disso os números da planilha já mudaram e a proposta precisa ser refeita.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  </div>
+
+</div>
+
+<script>
+"use strict";
+const RM = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ============================================================
+   A ESPINHA ARITMÉTICA — um lugar só, todas as telas leem daqui
+   ============================================================ */
+const FAT1=4200000, PED1=17074, NOV1=7700, MID1=909900, MARG=0.46;
+const D = {
+  ticket:   FAT1/PED1,                 // 245,9881
+  margemPedido:(FAT1/PED1)*MARG,       // 113,1545  ticket × 46%
+  novosMes: NOV1/12,                   // 641,6667
+  hoje:21.0, teto:34.0, padrao:27.6,
+  inicioGanho:6, janela:18, custoTotal:41850
+};
+/* fluxo de pagamento: entrada de 30% do total na assinatura, abatendo 30% de cada parcela */
+const CUSTO_MES = new Array(D.janela+1).fill(0);
+CUSTO_MES[1] = D.custoTotal*0.30 + 6800*0.70;          // 12.555 + 4.760
+for (let m=2;m<=4;m++) CUSTO_MES[m] += (18400/3)*0.70; // 3 × 4.293,33
+for (let m=4;m<=12;m++) CUSTO_MES[m] += 1850*0.70;     // 9 × 1.295
+
+const MESES_GANHO = D.janela - D.inicioGanho + 1;      // 13
+const NEC = D.custoTotal/(MESES_GANHO*D.margemPedido); // clientes a mais/mês necessários
+const LIM_PROV = D.hoje + NEC/D.novosMes*100;          // 25,43%
+const LIM_PIOR = D.hoje + (NEC/0.6)/D.novosMes*100;    // 28,39%
+
+const pontos      = t => t - D.hoje;
+/* nem o melhor caso projeta acima do teto já praticado pela Amora */
+const pontosEf    = (t,f=1) => Math.min(pontos(t)*f, D.teto - D.hoje);
+const clientesMes = (t,f=1) => D.novosMes*pontosEf(t,f)/100;
+const ganhoMes    = (t,f=1) => clientesMes(t,f)*D.margemPedido;
+const ganhoJanela = (t,f=1) => ganhoMes(t,f)*MESES_GANHO;
+
+function serie(t,f){                       // resultado líquido acumulado, mês a mês
+  const out=[]; let ac=0, cc=0;
+  for(let m=1;m<=D.janela;m++){
+    cc+=CUSTO_MES[m];
+    if(m>=D.inicioGanho) ac+=ganhoMes(t,f);
+    out.push(ac-cc);
+  }
+  return out;
+}
+
+/* ============================================================
+   FORMATAÇÃO EM PORTUGUÊS
+   ============================================================ */
+const nf=(n,d=0)=>n.toLocaleString("pt-BR",{minimumFractionDigits:d,maximumFractionDigits:d});
+const rs=n=>"R$ "+nf(Math.round(n));
+const pct=n=>nf(n,1)+"%";
+
+/* ============================================================
+   PALCO E NAVEGAÇÃO
+   ============================================================ */
+const palco=document.getElementById("palco");
+function escalar(){
+  const e=Math.min(innerWidth/1600, innerHeight/900);
+  palco.style.transform=`translate(-50%,-50%) scale(${e})`;
+}
+addEventListener("resize",escalar); escalar();
+
+const telas=[...document.querySelectorAll(".tela")];
+const regua=document.getElementById("regua");
+telas.forEach(()=>regua.insertAdjacentHTML("beforeend",'<div class="tick"></div>'));
+const ticks=[...regua.children];
+let atual=-1;
+
+function luz(nome){
+  ["neutra","problema","ganho"].forEach(n=>{
+    document.getElementById("luz-"+n).style.opacity = (n===nome?1:0);
+  });
+}
+function ir(i){
+  i=Math.max(0,Math.min(telas.length-1,i));
+  if(i===atual) return;
+  const anterior=atual; atual=i;
+  telas.forEach((t,k)=>t.classList.toggle("on",k===i));
+  ticks.forEach((t,k)=>{t.classList.toggle("on",k===i);t.classList.toggle("past",k<i)});
+  document.getElementById("rot-nome").textContent=telas[i].dataset.rot;
+  document.getElementById("rot-num").textContent=String(i+1).padStart(2,"0")+" / "+telas.length;
+  if(!(i===7||i===8)) luz(telas[i].dataset.luz); else pintarLuz();
+  if(i===5) abrirFase(anterior>i?2:0,false);
+  aoEntrar(i);
+}
+
+/* a Fase 06 avança fase antes de trocar de tela */
+let faseAberta=0;
+const quadrosFase=[...document.querySelectorAll(".fase")];
+function abrirFase(n,animar=true){
+  faseAberta=Math.max(0,Math.min(2,n));
+  quadrosFase.forEach((q,k)=>q.classList.toggle("aberta",k===faseAberta));
+  document.getElementById("fases-grade").style.gridTemplateColumns=
+    [0,1,2].map(k=>k===faseAberta?"1.9fr":"1fr").join(" ");
+  acenderTrecho(faseAberta);
+}
+
+const barraEl=()=>document.getElementById("barra");
+function avancar(passo){
+  if(atual===5){
+    if(passo>0 && faseAberta<2){abrirFase(faseAberta+1);return;}
+    if(passo<0 && faseAberta>0){abrirFase(faseAberta-1);return;}
+  }
+  ir(atual+passo);
+}
+addEventListener("keydown",e=>{
+  const noSlider = document.activeElement===barraEl();
+  const k=e.key;
+  if((k==="ArrowRight"||k==="ArrowLeft"||k==="ArrowUp"||k==="ArrowDown") && noSlider) return;
+  if(k==="ArrowRight"||k==="ArrowDown"||k===" "||k==="PageDown"){e.preventDefault();avancar(1);}
+  else if(k==="ArrowLeft"||k==="ArrowUp"||k==="PageUp"){e.preventDefault();avancar(-1);}
+  else if(k==="Home"){e.preventDefault();ir(0);}
+  else if(k==="End"){e.preventDefault();ir(telas.length-1);}
+  else if(k==="f"||k==="F"){e.preventDefault();
+    document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+  else if(atual===5 && k>="1" && k<="3"){abrirFase(+k-1);}
+});
+let tx=0,ty=0;
+addEventListener("touchstart",e=>{tx=e.changedTouches[0].clientX;ty=e.changedTouches[0].clientY},{passive:true});
+addEventListener("touchend",e=>{
+  const dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty;
+  if(Math.abs(dx)>52 && Math.abs(dx)>Math.abs(dy)) avancar(dx<0?1:-1);
+},{passive:true});
+
+/* ============================================================
+   FERRAMENTAS DE DESENHO
+   ============================================================ */
+const NS="http://www.w3.org/2000/svg";
+function el(t,a={}){const n=document.createElementNS(NS,t);for(const k in a)n.setAttribute(k,a[k]);return n;}
+function txt(x,y,s,o={}){
+  const n=el("text",Object.assign({x,y,"font-family":"JetBrains Mono, monospace","font-size":13,
+    fill:"#727a94"},o)); n.textContent=s; return n;
+}
+function tracar(path,dur=2500,atraso=0){
+  if(RM) return;
+  const L=path.getTotalLength();
+  path.style.strokeDasharray=L; path.style.strokeDashoffset=L;
+  path.style.transition=`stroke-dashoffset ${dur}ms cubic-bezier(.25,.75,.35,1) ${atraso}ms`;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{path.style.strokeDashoffset=0;}));
+}
+function surgir(node,atraso,dur=520){
+  if(RM) return;
+  node.style.opacity=0; node.style.transition=`opacity ${dur}ms ease ${atraso}ms`;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{node.style.opacity=1;}));
+}
+/* interpolação cúbica monótona (Fritsch–Carlson) */
+function mono(xs,ys){
+  const n=xs.length,dx=[],m=[],t=new Array(n);
+  for(let i=0;i<n-1;i++){dx[i]=xs[i+1]-xs[i];m[i]=(ys[i+1]-ys[i])/dx[i];}
+  t[0]=m[0]; t[n-1]=m[n-2];
+  for(let i=1;i<n-1;i++){
+    if(m[i-1]*m[i]<=0) t[i]=0;
+    else{const w1=2*dx[i]+dx[i-1],w2=dx[i]+2*dx[i-1];t[i]=(w1+w2)/(w1/m[i-1]+w2/m[i]);}
+  }
+  return {xs,ys,t};
+}
+function avaliar(c,x){
+  const {xs,ys,t}=c; let i=0;
+  while(i<xs.length-2 && x>xs[i+1]) i++;
+  const h=xs[i+1]-xs[i], s=(x-xs[i])/h, s2=s*s, s3=s2*s;
+  return (2*s3-3*s2+1)*ys[i]+(s3-2*s2+s)*h*t[i]+(-2*s3+3*s2)*ys[i+1]+(s3-s2)*h*t[i+1];
+}
+function caminho(c,px,py,passos=420){
+  const a=c.xs[0], b=c.xs[c.xs.length-1]; let d="";
+  for(let k=0;k<=passos;k++){
+    const x=a+(b-a)*k/passos;
+    d+=(k?"L":"M")+px(x).toFixed(2)+" "+py(avaliar(c,x)).toFixed(2);
+  }
+  return d;
+}
+/* busca binária do cruzamento do zero, na própria curva desenhada */
+function cruzamento(c){
+  const a=c.xs[0], b=c.xs[c.xs.length-1];
+  let ant=avaliar(c,a), x0=null;
+  for(let k=1;k<=600;k++){
+    const x=a+(b-a)*k/600, v=avaliar(c,x);
+    if(ant<0 && v>=0){x0=[a+(b-a)*(k-1)/600,x];break;}
+    ant=v;
+  }
+  if(!x0) return null;
+  let [lo,hi]=x0;
+  for(let k=0;k<48;k++){const md=(lo+hi)/2; if(avaliar(c,md)<0) lo=md; else hi=md;}
+  return (lo+hi)/2;
+}
+
+/* ============================================================
+   TELA 01 — a queda da recompra por safra
+   ============================================================ */
+const SAFRAS=[["mar/24",34.0],["abr/24",33.3],["mai/24",32.5],["jun/24",31.8],["jul/24",30.9],
+  ["ago/24",30.1],["set/24",29.4],["out/24",28.6],["nov/24",27.9],["dez/24",27.1],
+  ["jan/25",26.3],["fev/25",25.7],["mar/25",24.9],["abr/25",24.1],["mai/25",23.3],
+  ["jun/25",22.5],["jul/25",21.7],["ago/25",21.0]];
+function desenharCapa(){
+  const s=document.getElementById("svg-capa"); s.innerHTML="";
+  const W=770,H=510,L=58,R=22,T=26,B=64;
+  const px=i=>L+(W-L-R)*i/(SAFRAS.length-1);
+  const py=v=>T+(H-T-B)*(1-(v-18)/(36-18));
+  [20,24,28,32].forEach(v=>{
+    s.appendChild(el("line",{x1:L,x2:W-R,y1:py(v),y2:py(v),stroke:"rgba(255,255,255,.075)"}));
+    s.appendChild(txt(L-12,py(v)+4,v+"%",{"text-anchor":"end"}));
+  });
+  const c=mono(SAFRAS.map((_,i)=>i),SAFRAS.map(d=>d[1]));
+  const p=el("path",{d:caminho(c,px,py),fill:"none",stroke:"var(--coral)","stroke-width":3.4,
+    "stroke-linecap":"round"});
+  s.appendChild(p); tracar(p,2400);
+  [[0,"34,0%"],[17,"21,0%"]].forEach(([i,rot],k)=>{
+    const g=el("g");
+    g.appendChild(el("circle",{cx:px(i),cy:py(SAFRAS[i][1]),r:6,fill:"var(--coral)",
+      stroke:"rgba(7,10,22,.9)","stroke-width":2}));
+    g.appendChild(txt(px(i)+(k?-12:14),py(SAFRAS[i][1])+(k?24:-14),rot,
+      {"font-size":18,fill:"#e9ecf6","text-anchor":k?"end":"start"}));
+    s.appendChild(g); surgir(g,k?2350:120);
+  });
+  [[0,"mar/24"],[8,"nov/24"],[17,"ago/25"]].forEach(([i,r])=>
+    s.appendChild(txt(px(i),H-40,r,{"text-anchor":i===0?"start":(i===17?"end":"middle")})));
+  s.appendChild(txt(L,H-14,"safra = mês da primeira compra",{fill:"#5c637c"}));
+}
+
+/* ============================================================
+   TELA 03 — cascata da margem depois da mídia
+   ============================================================ */
+const CASC=[
+  ["Ano anterior",1126688,"base"],
+  ["+ volume de faturamento",294712,"sobe"],
+  ["− alta do custo por cliente novo",-322490,"desce"],
+  ["− comprar 650 clientes a mais",-76810,"desce"],
+  ["Último ano",1022100,"base"]
+];
+function desenharCascata(){
+  const s=document.getElementById("svg-cascata"); s.innerHTML="";
+  const W=930,H=420,L=92,R=16,T=30,B=84;
+  const topo=1560000, py=v=>T+(H-T-B)*(1-v/topo);
+  const larg=(W-L-R)/CASC.length, bw=larg*0.56;
+  [400000,800000,1200000,1600000].filter(v=>v<=topo).forEach(v=>{
+    s.appendChild(el("line",{x1:L,x2:W-R,y1:py(v),y2:py(v),stroke:"rgba(255,255,255,.075)"}));
+    s.appendChild(txt(L-12,py(v)+4,"R$ "+nf(v/1000)+"k",{"text-anchor":"end"}));
+  });
+  let base=0;
+  CASC.forEach((d,i)=>{
+    const [rot,val,tipo]=d;
+    const x=L+larg*i+(larg-bw)/2;
+    let y0,y1,cor;
+    if(tipo==="base"){y0=py(0);y1=py(val);cor="var(--ambar)";base=val;}
+    else{const fim=base+val;y0=py(base);y1=py(fim);
+      cor= val>0?"var(--verde)":"var(--coral)"; base=fim;}
+    const y=Math.min(y0,y1), h=Math.abs(y1-y0);
+    const g=el("g");
+    const r=el("rect",{x,y,width:bw,height:Math.max(h,3),rx:4,fill:cor,opacity:.80});
+    g.appendChild(r);
+    g.appendChild(txt(x+bw/2,y-11,(val>0&&tipo!=="base"?"+ ":"")+rs(val).replace("R$ -","− R$ "),
+      {"text-anchor":"middle","font-size":15,fill:"#e9ecf6"}));
+    s.appendChild(g);
+    if(!RM){g.style.opacity=0;g.style.transform="scaleY(.02)";
+      g.style.transformOrigin=`${x+bw/2}px ${y0}px`;
+      g.style.transition=`opacity 280ms ease ${i*420}ms, transform 460ms cubic-bezier(.22,.9,.28,1) ${i*420}ms`;
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{g.style.opacity=1;g.style.transform="scaleY(1)";}));}
+    rot.split(" ").reduce((linhas,p)=>{
+      if(!linhas.length||linhas[linhas.length-1].length+p.length>19) linhas.push(p);
+      else linhas[linhas.length-1]+=" "+p; return linhas;
+    },[]).forEach((linha,k)=>
+      s.appendChild(txt(x+bw/2,H-B+26+k*17,linha,{"text-anchor":"middle","font-size":13.5,
+        fill: i===0||i===4?"#a6adc4":"#727a94"})));
+  });
+  s.appendChild(el("line",{x1:L,x2:W-R,y1:py(0),y2:py(0),stroke:"rgba(255,255,255,.22)"}));
+}
+
+/* ============================================================
+   TELA 06 — linha do tempo das fases
+   ============================================================ */
+const FASES=[["Diagnóstico",0,0.75,"3 semanas"],["Implementação",0.75,3.75,"12 semanas"],
+             ["Operação assistida",3.75,12,"9 meses"]];
+let trechos=[];
+function desenharLinha(){
+  const s=document.getElementById("svg-linha"); s.innerHTML=""; trechos=[];
+  const W=1456,L=0,R=0,y=44,esc=m=>L+(W-L-R)*m/12;
+  FASES.forEach((f,i)=>{
+    const [nome,a,b,dur]=f;
+    const r=el("rect",{x:esc(a)+ (i?4:0),y,width:esc(b)-esc(a)-(i?4:0)-4,height:13,rx:6,
+      fill:"var(--violeta)",opacity:.30,style:"transition:opacity .4s ease"});
+    s.appendChild(r); trechos.push(r);
+    const dx=[2,92,10][i];
+    s.appendChild(txt(esc(a)+dx,y-13,nome,{"font-size":15,fill:"#a6adc4"}));
+    s.appendChild(txt(esc(a)+dx,y+32,dur,{"font-size":13.5}));
+    if(!RM){r.style.transformOrigin=`${esc(a)}px ${y}px`;r.style.transform="scaleX(0)";
+      r.style.transition=`transform 620ms cubic-bezier(.22,.9,.28,1) ${i*380}ms, opacity .4s ease`;
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{r.style.transform="scaleX(1)";}));}
+  });
+  [3,6,9,12].forEach(m=>s.appendChild(txt(esc(m),y+32,m+"º mês",{"text-anchor":"end"})));
+}
+function acenderTrecho(i){trechos.forEach((t,k)=>t.setAttribute("opacity",k===i?.92:.24));}
+
+/* ============================================================
+   TELA 08 — a barra
+   ============================================================ */
+const barra=document.getElementById("barra");
+const preenche=document.createElement("div");
+preenche.className="barra-preenche";
+barra.parentNode.insertBefore(preenche,barra);
+let taxa=D.padrao, varrendo=null;
+
+function posPct(t){return (t-D.hoje)/(D.teto-D.hoje)*100;}
+document.getElementById("marca-limiar").style.left=posPct(LIM_PIOR)+"%";
+document.getElementById("marca-limiar").querySelector("span").textContent=pct(LIM_PIOR);
+document.getElementById("b-limiar").textContent=pct(LIM_PIOR);
+
+const TONS={
+  vermelho:["var(--coral)","rgba(255,112,96,.55)","#ff7060","problema"],
+  ambar:["var(--ambar)","rgba(242,182,92,.55)","#f2b65c","neutra"],
+  verde:["var(--verde)","rgba(79,220,156,.55)","#4fdc9c","ganho"]
+};
+function estado(){return taxa<LIM_PROV-1e-9?"vermelho":(taxa<LIM_PIOR-1e-9?"ambar":"verde");}
+function pintarLuz(){ if(atual===7||atual===8) luz(TONS[estado()][3]); }
+
+function atualizar(){
+  const e=estado(), [cor,glow,hex]=TONS[e];
+  const q=document.getElementById("barra-quadro");
+  [q,...document.querySelectorAll(".retorno-grade .quadro")].forEach(n=>{
+    n.style.setProperty("--fio",cor); n.style.setProperty("--tom",hex);
+    n.style.setProperty("--tom-glow",glow);
+    n.querySelectorAll(".icone svg").forEach(i=>i.style.stroke=cor);
+    n.querySelectorAll(".num").forEach(x=>{
+      x.className="num "+(e==="vermelho"?"n-coral":e==="ambar"?"n-ambar":"n-verde");});
+  });
+  preenche.style.width="calc("+posPct(taxa)+"% - 2px)";
+  preenche.style.setProperty("--tom",hex);
+
+  const t=document.getElementById("b-taxa");
+  t.textContent=pct(taxa); t.style.fontSize="66px";
+  document.getElementById("b-margem").style.fontSize="38px";
+  document.getElementById("b-clientes").style.fontSize="52px";
+  document.getElementById("b-retorno").style.fontSize="52px";
+
+  const cm=clientesMes(taxa);
+  document.getElementById("b-clientes").textContent=nf(Math.round(cm));
+  document.getElementById("b-clientes-conta").textContent=
+    `642 × ${nf(pontos(taxa),1)} pts = ${nf(cm,1)} por mês`;
+
+  const ano=f=>ganhoMes(taxa,f)*12;
+  document.getElementById("b-margem").textContent=`${rs(ano(0.6))} a ${rs(ano(1.4))}`;
+  document.getElementById("b-margem-conta").textContent=
+    `provável ${rs(ano(1))} · ${nf(cm,1)} × R$ 113,15 × 12`;
+
+  const ret=f=>ganhoJanela(taxa,f)/D.custoTotal;
+  document.getElementById("b-retorno").textContent=
+    `${nf(ret(0.6),2)}× a ${nf(ret(1.4),2)}×`;
+  document.getElementById("b-retorno-conta").textContent=
+    `provável ${nf(ret(1),2)}× · ${rs(ganhoJanela(taxa,1))} ÷ R$ 41.850`;
+
+  const v=document.getElementById("veredito");
+  if(e==="vermelho"){
+    v.style.color="#ff9a8e";
+    v.innerHTML=`Neste patamar, <strong>nem no cenário provável</strong> o retorno cobre os R$ 41.850 em 18 meses. Faltam ${nf(LIM_PROV-taxa,1)} pontos.`;
+  }else if(e==="ambar"){
+    v.style.color="#f7cd8a";
+    v.innerHTML=`Cobre os R$ 41.850 no cenário provável, <strong>mas não no pior caso</strong>. Faltam ${nf(LIM_PIOR-taxa,1)} pontos para cobrir até no pior caso.`;
+  }else{
+    v.style.color="#8ef0c2";
+    v.innerHTML=`Cobre os R$ 41.850 <strong>até no pior caso</strong>, dentro dos 18 meses.`;
+  }
+  document.getElementById("btn-padrao").classList.toggle("ver",Math.abs(taxa-D.padrao)>0.049);
+
+  pintarLuz(); propagar();
+}
+
+function propagar(){
+  /* tela 09 */
+  const pb=f=>{const s=serie(taxa,f);for(let i=0;i<s.length;i++) if(s[i]>=-0.5) return i+1;return null;};
+  const mel=pb(1.4), prov=pb(1), pio=pb(0.6);
+  const tit=document.getElementById("t-payback");
+  if(mel&&pio) tit.textContent=`Se paga entre o ${mel}º e o ${pio}º mês`;
+  else if(mel&&prov) tit.textContent=`Se paga entre o ${mel}º e o ${prov}º mês — não no pior caso`;
+  else if(mel) tit.textContent=`Só se paga em 18 meses no melhor caso, no ${mel}º mês`;
+  else tit.textContent=`Neste patamar o projeto não se paga em 18 meses`;
+  desenharPayback(atual===8);
+
+  /* tela 11 */
+  document.getElementById("prem-taxa").innerHTML=
+    `Faixa desta proposta calculada com a recompra em <strong>${pct(taxa)}</strong>, valor escolhido na tela do retorno.`;
+
+  /* tela 12 */
+  const d=pontos(taxa);
+  document.getElementById("f-taxa").textContent=
+    `21,0% → ${pct(D.hoje+pontosEf(taxa,0.6))} a ${pct(D.hoje+pontosEf(taxa,1.4))}`;
+  const cmp=f=>MID1/(PED1+NOV1*pontosEf(taxa,f)/100);
+  document.getElementById("f-custo").textContent=
+    `R$ 53,29 → R$ ${nf(cmp(0.6),2)} a R$ ${nf(cmp(1.4),2)}`;
+  document.getElementById("f-margem").textContent=
+    `${rs(ganhoMes(taxa,0.6)*12)} a ${rs(ganhoMes(taxa,1.4)*12)}`;
+  document.getElementById("f-conta").textContent=
+    `Recompra escolhida na barra: ${pct(taxa)}. Faixa de execução de 60% a 140%. `+
+    `Números informados pela Amora, não auditados pela Praxis.`;
+}
+
+barra.addEventListener("input",()=>{
+  if(varrendo){cancelAnimationFrame(varrendo);varrendo=null;}
+  taxa=+barra.value; atualizar();
+});
+["pointerup","mouseup","touchend","blur"].forEach(ev=>
+  barra.addEventListener(ev,()=>barra.blur()));
+document.getElementById("btn-padrao").addEventListener("click",()=>{
+  taxa=D.padrao; barra.value=taxa; atualizar(); barra.blur();
+});
+function varrer(){
+  if(RM) return;
+  const alvo=+barra.value, ini=D.hoje, t0=performance.now(), dur=1000;
+  const passo=agora=>{
+    const k=Math.min(1,(agora-t0)/dur), s=1-Math.pow(1-k,3);
+    taxa=ini+(alvo-ini)*s; barra.value=taxa; atualizar();
+    if(k<1) varrendo=requestAnimationFrame(passo); else varrendo=null;
+  };
+  varrendo=requestAnimationFrame(passo);
+}
+
+/* ============================================================
+   TELA 09 — quando o projeto se paga
+   ============================================================ */
+const CENARIOS=[["Melhor caso · 140%",1.4,"#8ef0c2",1.8,.55],
+                ["Cenário provável · 100%",1.0,"var(--verde)",3.8,1],
+                ["Pior caso · 60%",0.6,"var(--coral)",2.2,.9]];
+function desenharPayback(animar){
+  const s=document.getElementById("svg-payback"); s.innerHTML="";
+  const W=1404,H=420,L=92,R=210,T=22,B=118;
+  const xs=[]; for(let m=1;m<=D.janela;m++) xs.push(m);
+  const curvas=CENARIOS.map(c=>mono(xs,serie(taxa,c[1])));
+  let lo=-46000, hi=8000;
+  curvas.forEach(c=>c.ys.forEach(v=>{lo=Math.min(lo,v*1.12);hi=Math.max(hi,v*1.12)}));
+  const px=m=>L+(W-L-R)*(m-1)/(D.janela-1);
+  const py=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo));
+
+  for(let v=Math.ceil(lo/20000)*20000; v<=hi; v+=20000){
+    s.appendChild(el("line",{x1:L,x2:W-R,y1:py(v),y2:py(v),stroke:"rgba(255,255,255,.06)"}));
+    s.appendChild(txt(L-12,py(v)+4,(v<0?"− ":"")+"R$ "+nf(Math.abs(v)/1000)+"k",{"text-anchor":"end"}));
+  }
+  s.appendChild(el("line",{x1:L,x2:W-R,y1:py(0),y2:py(0),stroke:"rgba(255,255,255,.34)","stroke-dasharray":"5 5"}));
+
+  /* faixa entre pior e melhor — preenche depois das linhas */
+  const faixa=el("path",{fill:"var(--verde)","fill-opacity":.10});
+  const dMel=[],dPio=[];
+  for(let k=0;k<=300;k++){const m=1+(D.janela-1)*k/300;dMel.push([px(m),py(avaliar(curvas[0],m))]);}
+  for(let k=300;k>=0;k--){const m=1+(D.janela-1)*k/300;dPio.push([px(m),py(avaliar(curvas[2],m))]);}
+  faixa.setAttribute("d","M"+dMel.concat(dPio).map(p=>p[0].toFixed(1)+" "+p[1].toFixed(1)).join("L")+"Z");
+  s.appendChild(faixa);
+  if(animar&&!RM) surgir(faixa,2600,700);
+
+  /* eixo dos meses e, embaixo dele, a linha do tempo das fases */
+  [1,3,6,9,12,15,18].forEach(m=>s.appendChild(txt(px(m),H-B+24,m+"º",{"text-anchor":"middle"})));
+  s.appendChild(txt(L,H-B+46,"mês do projeto",{fill:"#5c637c"}));
+  const yf=H-B+62;
+  FASES.forEach((f,i)=>{
+    const a=px(1+f[1]), b=px(1+f[2]);
+    s.appendChild(el("rect",{x:a+(i?3:0),y:yf,width:b-a-(i?3:0)-3,height:11,rx:5,
+      fill:"var(--violeta)",opacity:.42}));
+    s.appendChild(txt(a+[2,60,8][i],yf+30,["Diagnóstico","Implementação","Operação assistida"][i],
+      {"font-size":13.5,fill:"#8c93ac"}));
+  });
+  s.appendChild(el("line",{x1:px(1+D.inicioGanho-1),x2:px(1+D.inicioGanho-1),y1:T,y2:H-B+6,
+    stroke:"rgba(255,255,255,.20)","stroke-dasharray":"3 6"}));
+  s.appendChild(txt(px(6)+8,T+16,"ganho começa a contar",{fill:"#8c93ac"}));
+
+  /* as três curvas */
+  curvas.forEach((c,i)=>{
+    const [rot,f,cor,esp,op]=CENARIOS[i];
+    const p=el("path",{d:caminho(c,px,py),fill:"none",stroke:cor,"stroke-width":esp,
+      "stroke-linecap":"round",opacity:op});
+    s.appendChild(p);
+    if(animar) tracar(p,2500,i*90);
+    const cr=cruzamento(c);
+    if(cr!==null){
+      const g=el("g");
+      g.appendChild(el("circle",{cx:px(cr),cy:py(0),r:6.5,fill:cor,stroke:"rgba(7,10,22,.92)","stroke-width":2}));
+      const mes=Math.ceil(cr);
+      g.appendChild(txt(px(cr),py(0)-16-(i*20),mes+"º mês",
+        {"text-anchor":"middle","font-size":14,fill:"#e9ecf6"}));
+      s.appendChild(g);
+      if(animar&&!RM) surgir(g,90*i+2500*((px(cr)-px(1))/(px(D.janela)-px(1))),380);
+    }
+  });
+
+  /* legenda com o mês de payback de cada cenário */
+  const pb=f=>{const sr=serie(taxa,f);for(let k=0;k<sr.length;k++) if(sr[k]>=-0.5) return (k+1)+"º mês";return "não se paga em 18 meses";};
+  CENARIOS.forEach((c,i)=>{
+    const y=T+18+i*46, x=W-R+8;
+    s.appendChild(el("line",{x1:x,x2:x+22,y1:y-5,y2:y-5,stroke:c[2],"stroke-width":c[3],
+      "stroke-linecap":"round",opacity:c[4]}));
+    s.appendChild(txt(x,y+13,c[0],{"font-size":13.5,fill:"#a6adc4"}));
+    s.appendChild(txt(x,y+30,pb(c[1]),{"font-size":14,fill:"#e9ecf6"}));
+  });
+}
+
+/* ============================================================
+   ENTRADA EM CADA TELA
+   ============================================================ */
+function aoEntrar(i){
+  if(i===0) desenharCapa();
+  if(i===2) desenharCascata();
+  if(i===5){desenharLinha();acenderTrecho(faseAberta);}
+  if(i===7){barra.value=taxa;atualizar();varrer();}
+  if(i===8) desenharPayback(true);
+}
+
+atualizar();
+ir(0);
+</script>
+</body>
+</html>

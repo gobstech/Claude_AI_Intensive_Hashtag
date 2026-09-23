@@ -1,0 +1,25 @@
+{
+  "_comentario": "Mude os dados aqui e clique em 'Atualizar o Site.bat' — atualiza telefone, WhatsApp, e-mail e endereço em TODAS as páginas de uma vez.",
+
+  "nome_empresa": "Tergon Pisos Industriais",
+  "dominio": "https://www.tergonpisos.com.br",
+
+  "telefone_exibicao": "(19) 99999-0000",
+  "telefone_tel": "+5519999990000",
+
+  "whatsapp_numero": "5519999990000",
+  "whatsapp_mensagem_padrao": "Olá, quero solicitar um orçamento de piso industrial",
+
+  "email": "contato@tergonpisos.com.br",
+
+  "endereco_curto": "Rua Industrial, 1200 — Indaiatuba/SP",
+  "endereco_rua": "Rua Industrial, 1200",
+  "endereco_bairro": "Distrito Industrial",
+  "endereco_cidade": "Indaiatuba",
+  "endereco_uf": "SP",
+
+  "ano_fundacao": 2008,
+  "ano_copyright": 2026,
+
+  "horario": "Segunda a sexta, das 8h às 18h"
+}

@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Proposta Rede Ímpeto — Praxis Consultoria</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#040406;
+    --bg:#0a0a10;
+    --fg:#f5f6fb;
+    --muted:#a7acc2;
+    --muted-2:#6d7188;
+    --amber:#ffb648;
+    --pink:#ff5fa8;
+    --violet:#8c6bff;
+    --blue:#4f8dff;
+    --cyan:#2dd4bf;
+    --green:#34d399;
+    --red:#fb7185;
+    --glass:rgba(255,255,255,.055);
+    --glass-strong:rgba(255,255,255,.09);
+    --glass-border:rgba(255,255,255,.14);
+    --grad-hero:linear-gradient(120deg, var(--amber) 0%, var(--pink) 52%, var(--violet) 100%);
+    --grad-cool:linear-gradient(120deg, var(--blue) 0%, var(--violet) 100%);
+    --grad-green:linear-gradient(120deg, var(--cyan) 0%, var(--green) 100%);
+    --grad-red:linear-gradient(120deg, var(--red) 0%, #f43f5e 100%);
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; width:100%; height:100%;
+    background:var(--bg-deep);
+    overflow:hidden;
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  #viewport{
+    position:fixed; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--bg-deep);
+  }
+  #stage{
+    position:relative;
+    width:1280px; height:720px;
+    background:var(--bg);
+    flex:none;
+    box-shadow:0 40px 130px rgba(0,0,0,.6);
+    overflow:hidden;
+  }
+  /* glowing color blobs behind the glass — the "light from behind the screen" */
+  .blob{ position:absolute; border-radius:50%; filter:blur(90px); pointer-events:none; z-index:0; mix-blend-mode:screen; }
+  .blob-1{ width:620px; height:620px; left:-140px; top:-160px; background:radial-gradient(circle, var(--violet) 0%, transparent 70%); opacity:.55; }
+  .blob-2{ width:560px; height:560px; right:-160px; top:-100px; background:radial-gradient(circle, var(--pink) 0%, transparent 70%); opacity:.45; }
+  .blob-3{ width:680px; height:680px; left:280px; bottom:-260px; background:radial-gradient(circle, var(--blue) 0%, transparent 70%); opacity:.4; }
+  .blob-4{ width:480px; height:480px; right:120px; bottom:-200px; background:radial-gradient(circle, var(--amber) 0%, transparent 70%); opacity:.35; }
+  #stage::after{
+    content:''; position:absolute; inset:0; z-index:0; pointer-events:none;
+    background:radial-gradient(ellipse 900px 640px at 50% 45%, transparent 40%, rgba(4,4,8,.55) 100%);
+  }
+
+  .slide{
+    position:absolute; inset:0; z-index:1;
+    display:flex; flex-direction:column;
+    padding:64px 96px 56px;
+    opacity:0; pointer-events:none;
+    transform:translateY(12px);
+  }
+  .slide.active{
+    opacity:1; pointer-events:auto; transform:translateY(0);
+    transition:opacity .28s ease, transform .28s ease;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .slide, .slide.active{ transition:none !important; }
+  }
+
+  /* entrance choreography */
+  @keyframes metricPop{
+    from{ opacity:0; transform:translateY(14px) scale(.94); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
+  @keyframes rowReveal{
+    from{ opacity:0; transform:translateY(9px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .metric{ opacity:0; }
+  .metric.reveal{ opacity:1; animation:metricPop .55s cubic-bezier(.22,.85,.28,1) both; }
+  ul.plain li{ opacity:0; }
+  ul.plain li.reveal{ opacity:1; animation:rowReveal .48s ease both; }
+  [data-stagger] > *{ opacity:0; }
+  [data-stagger] > *.reveal{ opacity:1; animation:rowReveal .48s ease both; }
+  table.plan tr{ opacity:0; }
+  table.plan tr.reveal{ opacity:1; animation:rowReveal .4s ease both; }
+  @media (prefers-reduced-motion: reduce){
+    .metric, ul.plain li, [data-stagger] > *, table.plan tr{ opacity:1 !important; animation:none !important; }
+  }
+
+  /* header strip */
+  .strip{
+    position:relative; z-index:2;
+    display:flex; align-items:center; justify-content:space-between;
+    font-size:15px; letter-spacing:.02em; color:var(--muted-2);
+    padding-bottom:16px; margin-bottom:28px;
+  }
+  .strip .mark{ color:var(--muted); }
+  .strip .index{
+    font-variant-numeric:tabular-nums; color:var(--muted);
+    background:var(--glass); border:1px solid var(--glass-border);
+    padding:5px 14px; border-radius:999px; backdrop-filter:blur(10px);
+  }
+
+  .content{ position:relative; z-index:2; flex:1; display:flex; flex-direction:column; min-height:0; }
+  .content > *{ flex-shrink:0; }
+
+  h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600; font-size:42px; line-height:1.18;
+    color:var(--fg); margin:0 0 8px; max-width:920px;
+  }
+  .lede{
+    font-size:19px; color:var(--muted); max-width:700px; margin:0 0 30px; line-height:1.5;
+  }
+
+  .premise{
+    margin-top:auto; padding-top:16px;
+    font-size:15px; color:var(--muted-2); max-width:920px; line-height:1.55;
+  }
+  .premise b{ color:var(--muted); font-weight:500; }
+
+  /* glass card metric */
+  .metrics{ display:flex; gap:22px; align-items:stretch; flex-wrap:wrap; row-gap:22px; }
+  .metrics.compact{ gap:16px; }
+  .metrics.compact .value{ font-size:33px; }
+  .metrics.compact .metric{ padding:12px 16px 11px; border-radius:16px; }
+  .metrics.compact .label{ margin-top:5px; font-size:15px; }
+  .metric{
+    position:relative; display:flex; flex-direction:column; min-width:172px;
+    background:var(--glass); border:1px solid var(--glass-border);
+    border-radius:20px; padding:22px 24px 20px;
+    backdrop-filter:blur(20px) saturate(160%); -webkit-backdrop-filter:blur(20px) saturate(160%);
+    box-shadow:0 18px 40px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.07);
+  }
+  .metric::before{
+    content:''; position:absolute; top:0; left:18px; right:18px; height:3px; border-radius:0 0 3px 3px;
+    background:var(--accent-grad, linear-gradient(90deg,#4f8dff,#8c6bff));
+  }
+  .metric::after{
+    content:''; position:absolute; top:-1px; left:18px; right:18px; height:10px; pointer-events:none;
+    background:var(--accent-grad, linear-gradient(90deg,#4f8dff,#8c6bff));
+    filter:blur(9px); opacity:.75;
+  }
+  .metric[data-kind="money"]{ --accent-grad:linear-gradient(90deg,#ffb648,#ff5fa8); }
+  .metric[data-kind="people"]{ --accent-grad:linear-gradient(90deg,#4f8dff,#38bdf8); }
+  .metric[data-kind="time"]{ --accent-grad:linear-gradient(90deg,#8c6bff,#c084fc); }
+  .metric[data-kind="conversion"]{ --accent-grad:linear-gradient(90deg,#ff5fa8,#fb7185); }
+  .metric .icon{ position:absolute; top:16px; right:16px; width:22px; height:22px; z-index:1; }
+  .metric .icon + .value{ margin-top:32px; }
+  .metric[data-kind="money"] .icon{ color:#ffb648; }
+  .metric[data-kind="people"] .icon{ color:#4f8dff; }
+  .metric[data-kind="time"] .icon{ color:#8c6bff; }
+  .metric[data-kind="conversion"] .icon{ color:#ff5fa8; }
+  .metric .value{
+    font-family:'Space Grotesk', sans-serif; font-weight:700; font-variant-numeric:tabular-nums;
+    font-size:52px; line-height:1.05; white-space:nowrap;
+    background-image:var(--grad-cool); -webkit-background-clip:text; background-clip:text;
+    color:transparent; -webkit-text-fill-color:transparent;
+    filter:drop-shadow(0 0 22px rgba(79,141,255,.25));
+  }
+  .metric .value.amber{
+    background-image:var(--grad-hero);
+    filter:drop-shadow(0 0 26px rgba(255,110,150,.3));
+  }
+  .metric .label{ font-size:16px; color:var(--muted); line-height:1.4; max-width:220px; margin-top:10px; }
+
+  /* generic list */
+  ul.plain{ list-style:none; margin:0; padding:0; }
+  ul.plain li{
+    position:relative; padding-left:28px; margin-bottom:16px;
+    font-size:18px; color:var(--fg); line-height:1.45; max-width:820px;
+  }
+  ul.plain li::before{
+    content:''; position:absolute; left:0; top:7px; width:9px; height:9px; border-radius:50%;
+    background:linear-gradient(135deg, var(--amber), var(--pink));
+    box-shadow:0 0 10px rgba(255,140,120,.6);
+  }
+  ul.plain li b{ font-weight:600; }
+  ul.plain li .sub{ display:block; font-size:16px; color:var(--muted); margin-top:3px; }
+
+  code.mono, .mono{ font-family:'Space Grotesk', sans-serif; font-variant-numeric:tabular-nums; }
+
+  /* generic glass panel wrapper for charts / tables */
+  .glass-panel{
+    background:var(--glass); border:1px solid var(--glass-border);
+    border-radius:24px; padding:28px 30px;
+    backdrop-filter:blur(20px) saturate(160%); -webkit-backdrop-filter:blur(20px) saturate(160%);
+    box-shadow:0 20px 50px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.07);
+  }
+
+  /* clickable phase cards (slide 06) */
+  .phase-card{
+    position:relative; flex:1 1 0; min-width:0; cursor:pointer;
+    display:flex; flex-direction:column;
+    background:var(--glass); border:1px solid var(--glass-border); border-radius:22px;
+    padding:26px 26px 22px; overflow:hidden;
+    backdrop-filter:blur(20px) saturate(160%); -webkit-backdrop-filter:blur(20px) saturate(160%);
+    box-shadow:0 18px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.07);
+    transition:flex-grow .55s cubic-bezier(.22,.85,.28,1), opacity .45s ease;
+  }
+  .phase-card::before{
+    content:''; position:absolute; top:0; left:20px; right:20px; height:3px; border-radius:0 0 3px 3px;
+    background:var(--accent-grad);
+  }
+  .phase-card::after{
+    content:''; position:absolute; top:-1px; left:20px; right:20px; height:10px; pointer-events:none;
+    background:var(--accent-grad); filter:blur(9px); opacity:.75;
+  }
+  .phase-card[data-kind="p1"]{ --accent-grad:linear-gradient(90deg,#ffb648,#ff5fa8); }
+  .phase-card[data-kind="p2"]{ --accent-grad:linear-gradient(90deg,#ff5fa8,#8c6bff); }
+  .phase-card[data-kind="p3"]{ --accent-grad:linear-gradient(90deg,#8c6bff,#4f8dff); }
+  .phase-card[data-kind="p1"] .icon-big{ color:#ffb648; }
+  .phase-card[data-kind="p2"] .icon-big{ color:#ff5fa8; }
+  .phase-card[data-kind="p3"] .icon-big{ color:#8c6bff; }
+  .phase-card .icon-big{ width:32px; height:32px; margin:8px 0 16px; flex-shrink:0; }
+  .phase-card h3{ font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:23px; color:var(--fg); margin:0; white-space:nowrap; }
+  .phase-card .dur{ font-size:16px; color:var(--muted); margin-top:6px; white-space:nowrap; }
+  .phase-card .detail{
+    margin-top:18px; opacity:0; max-height:0; overflow:hidden;
+    transition:opacity .4s ease, max-height .4s ease;
+  }
+  .phase-card .detail p{ font-size:16px; color:var(--muted); line-height:1.55; margin:0 0 14px; max-width:480px; }
+  .phase-card.open{ flex-grow:3.6; }
+  .phase-card.open .detail{ opacity:1; max-height:320px; transition:opacity .45s ease .15s, max-height .45s ease .15s; }
+  .phase-card.closed{ flex-grow:.5; opacity:.4; }
+  .phase-card.closed h3{ white-space:normal; font-size:19px; overflow-wrap:break-word; hyphens:auto; }
+  .phase-card.closed .dur{ white-space:normal; }
+  .phase-card:hover{ opacity:1; }
+  @media (prefers-reduced-motion: reduce){
+    .phase-card{ transition:none; }
+  }
+
+  /* cover slide specifics */
+  .cover-wordmark{ font-size:16px; color:var(--muted); margin-bottom:auto; }
+  .cover-title{ font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:56px; line-height:1.14; color:var(--fg); max-width:900px; margin:0 0 14px; }
+  .cover-sub{ font-size:19px; color:var(--muted); max-width:640px; margin:0 0 56px; line-height:1.5; }
+
+  /* table (fases / pagamento) */
+  table.plan{ width:100%; border-collapse:collapse; max-width:980px; }
+  table.plan th{
+    text-align:left; font-weight:500; font-size:14px;
+    color:var(--muted-2); padding:0 20px 14px 0; border-bottom:1px solid var(--glass-border);
+  }
+  table.plan td{
+    padding:13px 20px 13px 0; border-bottom:1px solid rgba(255,255,255,.07); font-size:16.5px; color:var(--fg); vertical-align:top;
+  }
+  table.plan td.num{ font-family:'Space Grotesk',sans-serif; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  table.plan tr.total td{
+    border-bottom:none; padding-top:18px; font-weight:700; font-family:'Space Grotesk',sans-serif; font-size:22px;
+    background-image:var(--grad-hero); -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent;
+  }
+  table.plan tr.total td:not(.num){ -webkit-text-fill-color:var(--fg); color:var(--fg); background:none; font-size:16.5px; font-weight:600; }
+
+  svg text{ font-family:'Inter', sans-serif; }
+
+  .hint{
+    position:absolute; bottom:26px; right:96px; z-index:3;
+    font-size:14px; color:var(--muted-2);
+    display:flex; align-items:center; gap:8px; opacity:1; transition:opacity .6s ease;
+  }
+  .hint.hidden{ opacity:0; }
+  .kbd{ border:1px solid var(--glass-border); border-radius:5px; padding:1px 6px; color:var(--muted); background:var(--glass); }
+
+  .cols2{ display:flex; gap:70px; }
+  .cols2 > div{ flex:1; }
+
+  /* range slider — glass track with glowing gradient fill */
+  #convSlider::-webkit-slider-runnable-track{ background:transparent; height:40px; }
+  #convSlider::-moz-range-track{ background:transparent; height:40px; border:none; }
+  #convSlider::-webkit-slider-thumb{
+    -webkit-appearance:none; appearance:none;
+    width:26px; height:26px; border-radius:50%;
+    background:#fff; border:none;
+    box-shadow:0 0 0 5px rgba(255,182,72,.22), 0 0 22px rgba(255,150,90,.7), 0 4px 10px rgba(0,0,0,.4);
+    margin-top:7px; cursor:grab;
+  }
+  #convSlider::-moz-range-thumb{
+    width:26px; height:26px; border-radius:50%;
+    background:#fff; border:none;
+    box-shadow:0 0 0 5px rgba(255,182,72,.22), 0 0 22px rgba(255,150,90,.7), 0 4px 10px rgba(0,0,0,.4);
+    cursor:grab;
+  }
+  #convSlider:active::-webkit-slider-thumb{ cursor:grabbing; }
+
+  #curveLine{ transition:stroke-dashoffset 1s cubic-bezier(.22,.7,.2,1); }
+  @keyframes markerPop{
+    0%{ opacity:0; transform:scale(.3); }
+    60%{ opacity:1; transform:scale(1.3); }
+    100%{ opacity:1; transform:scale(1); }
+  }
+  #paybackDot.pop{ animation:markerPop .4s cubic-bezier(.22,.85,.28,1) both; transform-box:fill-box; transform-origin:center; }
+</style>
+</head>
+<body>
+
+<div id="viewport">
+  <div id="stage">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+
+    <!-- 01 · CAPA -->
+    <section class="slide" data-i="1">
+      <div class="content" style="flex-direction:row; align-items:center;">
+        <div style="flex:1; display:flex; flex-direction:column; justify-content:center; height:100%;">
+          <div class="cover-wordmark">Praxis Consultoria</div>
+          <h1 class="cover-title">Proposta para a Rede Ímpeto</h1>
+          <p class="cover-sub">Conversão de visita em matrícula, nas nove unidades — diagnóstico, implementação e operação assistida.</p>
+          <div class="metrics">
+            <div class="metric" data-kind="money">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2.5"></rect><circle cx="12" cy="12" r="2.6"></circle></svg>
+              <div class="value amber" id="c1">R$ 0</div>
+              <div class="label">valor total do projeto</div>
+            </div>
+            <div class="metric" data-kind="time">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5v5l3.2 2"></path></svg>
+              <div class="value" id="c2">0 meses</div>
+              <div class="label">do diagnóstico à operação assistida</div>
+            </div>
+            <div class="metric" data-kind="money">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2.5"></rect><circle cx="12" cy="12" r="2.6"></circle></svg>
+              <div class="value" id="c3">R$ 0</div>
+              <div class="label">entrada — 30% na assinatura</div>
+            </div>
+            <div class="metric" data-kind="time">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5v5l3.2 2"></path></svg>
+              <div class="value" id="c4">0 dias</div>
+              <div class="label">validade desta proposta</div>
+            </div>
+          </div>
+        </div>
+        <div style="width:1px; align-self:stretch; background:var(--glass-border); margin:0 48px;"></div>
+        <div style="width:210px; display:flex; flex-direction:column; gap:20px;">
+          <div class="metric" data-kind="people" style="padding:18px 20px 16px;">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"></circle><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15.3 19c0-2.2 1-3.8 3.2-4.1"></path></svg>
+            <div class="mono value" id="c5" style="font-size:30px;">0</div>
+            <div class="label" style="font-size:15px;">unidades na rede</div>
+          </div>
+          <div class="metric" data-kind="money" style="padding:18px 20px 16px;">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2.5"></rect><circle cx="12" cy="12" r="2.6"></circle></svg>
+            <div class="mono value amber" id="c6" style="font-size:30px;">R$ 0 mi</div>
+            <div class="label" style="font-size:15px;">faturamento nos últimos 12 meses</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 · OS TRÊS NÚMEROS -->
+    <section class="slide" data-i="2">
+      <div class="strip"><span class="mark">Praxis · Rede Ímpeto</span><span class="index">02 / 11</span></div>
+      <div class="content">
+        <h1>A rede não tem falta de gente entrando</h1>
+        <p class="lede">Tem gente que entra e não fecha. Os três números abaixo mostram onde isso aparece.</p>
+        <div class="metrics" id="s2metrics" style="margin-top:20px;">
+          <div class="metric" data-kind="people">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"></circle><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15.3 19c0-2.2 1-3.8 3.2-4.1"></path></svg>
+            <div class="value" id="n622">0</div>
+            <div class="label">visitas por mês, somando as nove unidades</div>
+          </div>
+          <div class="metric" data-kind="people">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"></circle><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15.3 19c0-2.2 1-3.8 3.2-4.1"></path></svg>
+            <div class="value" id="n143">0</div>
+            <div class="label">viram matrícula — 23% de conversão</div>
+          </div>
+          <div class="metric" data-kind="conversion">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16l-6.2 7.2v5.3l-3.6 1.8v-7.1L4 5z"></path></svg>
+            <div class="value amber"><span id="n32">0%</span> → <span id="n23">0%</span></div>
+            <div class="label">conversão, ao longo dos últimos 18 meses</div>
+          </div>
+        </div>
+        <div class="premise"><b>Premissa:</b> números informados pela Rede Ímpeto na reunião de diagnóstico. Não auditados pela Praxis.</div>
+      </div>
+    </section>
+
+    <!-- 03 · POR QUE O CUSTO SUBIU -->
+    <section class="slide" data-i="3">
+      <div class="strip"><span class="mark">Praxis · Rede Ímpeto</span><span class="index">03 / 11</span></div>
+      <div class="content">
+        <h1>O custo subiu — mas não por causa da mídia</h1>
+        <p class="lede" style="margin-bottom:16px;">Custo por matrícula = custo por visita ÷ conversão. Isolar os dois efeitos mostra qual pesa mais.</p>
+        <div class="glass-panel" style="margin-top:10px; padding:24px 30px 22px;">
+          <div style="display:flex; gap:28px;">
+            <div style="flex:1; text-align:center;">
+              <div class="mono" id="cv1" style="font-size:20px; font-weight:600; color:var(--fg);">R$ 0,00</div>
+            </div>
+            <div style="flex:1; text-align:center;">
+              <div class="mono" id="cv2" style="font-size:20px; font-weight:600; color:var(--fg);">R$ 0,00</div>
+            </div>
+            <div style="flex:1; text-align:center;">
+              <div class="mono" id="cv3" style="font-size:20px; font-weight:600; color:var(--fg);">R$ 0,00</div>
+            </div>
+            <div style="flex:1; text-align:center;">
+              <div class="mono" id="cv4" style="font-size:22px; font-weight:700; background-image:var(--grad-hero); -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent; filter:drop-shadow(0 0 20px rgba(255,120,120,.35)); padding-top:4px;">R$ 0,00</div>
+            </div>
+          </div>
+          <div id="costChart" style="display:flex; align-items:flex-end; gap:28px; height:186px; margin-top:10px;">
+            <div style="flex:1;">
+              <div id="cb1" data-h="112" style="width:100%; height:0; border-radius:12px 12px 4px 4px; background:linear-gradient(180deg,#6d7ee0,#4a5bc4); transition:height .7s cubic-bezier(.22,.85,.28,1);"></div>
+            </div>
+            <div style="flex:1;">
+              <div id="cb2" data-h="128" style="width:100%; height:0; border-radius:12px 12px 4px 4px; background:linear-gradient(180deg,#8a6be0,#6a4bc0); transition:height .7s cubic-bezier(.22,.85,.28,1) .12s;"></div>
+            </div>
+            <div style="flex:1;">
+              <div id="cb3" data-h="157" style="width:100%; height:0; border-radius:12px 12px 4px 4px; background:linear-gradient(180deg,#c469c9,#9d4bb0); transition:height .7s cubic-bezier(.22,.85,.28,1) .24s;"></div>
+            </div>
+            <div style="flex:1;">
+              <div id="cb4" data-h="180" style="width:100%; height:0; border-radius:12px 12px 4px 4px; background:linear-gradient(180deg,#ffb648,#ff5fa8); transition:height .7s cubic-bezier(.22,.85,.28,1) .36s;"></div>
+            </div>
+          </div>
+          <div style="display:flex; gap:28px; margin-top:12px; padding-top:12px; border-top:1px solid var(--glass-border);">
+            <div style="flex:1; text-align:center;">
+              <div style="font-size:15px; color:var(--muted);">custo/visita R$44, conversão 32%</div>
+              <div style="font-size:14px; color:var(--muted-2); margin-top:3px;">ponto de partida, 18 meses atrás</div>
+            </div>
+            <div style="flex:1; text-align:center;">
+              <div style="font-size:15px; color:var(--muted);">só a mídia sobe, conversão 32%</div>
+              <div style="font-size:14px; color:var(--muted-2); margin-top:3px;">efeito isolado da mídia: +14%</div>
+            </div>
+            <div style="flex:1; text-align:center;">
+              <div style="font-size:15px; color:var(--muted);">custo/visita R$44, conversão cai a 23%</div>
+              <div style="font-size:14px; color:var(--muted-2); margin-top:3px;">efeito isolado da conversão: +39%</div>
+            </div>
+            <div style="flex:1; text-align:center;">
+              <div style="font-size:15px; color:#ffb0a8;">hoje — as duas coisas juntas</div>
+              <div style="font-size:14px; color:#c98a9a; margin-top:3px;">alta total: +58%</div>
+            </div>
+          </div>
+        </div>
+        <div class="premise"><b>Cálculo:</b> feito pela Praxis a partir dos números informados pela Rede Ímpeto. A conversão pesa mais que o dobro do efeito da mídia no aumento do custo por matrícula.</div>
+      </div>
+    </section>
+
+    <!-- 04 · TRÊS PONTOS DE VAZAMENTO -->
+    <section class="slide" data-i="4">
+      <div class="strip"><span class="mark">Praxis · Rede Ímpeto</span><span class="index">04 / 11</span></div>
+      <div class="content">
+        <h1>Três hipóteses de onde o dinheiro vaza</h1>
+        <p class="lede">Ainda hipóteses, não fatos. Cada uma vira número na Fase 1.</p>
+        <div style="display:flex; align-items:center; gap:0; margin:30px 0 8px;">
+          <span style="font-size:15px; color:var(--muted);">visita</span>
+          <div class="glass-panel" style="flex:1; height:20px; margin:0 18px; padding:0; border-radius:999px; position:relative;">
+            <span style="position:absolute; left:22%; top:-7px; width:8px; height:8px; border-radius:50%; background:linear-gradient(135deg,var(--amber),var(--pink)); box-shadow:0 0 12px rgba(255,140,120,.7);"></span>
+            <span style="position:absolute; left:50%; top:-7px; width:8px; height:8px; border-radius:50%; background:linear-gradient(135deg,var(--amber),var(--pink)); box-shadow:0 0 12px rgba(255,140,120,.7);"></span>
+            <span style="position:absolute; left:78%; top:-7px; width:8px; height:8px; border-radius:50%; background:linear-gradient(135deg,var(--amber),var(--pink)); box-shadow:0 0 12px rgba(255,140,120,.7);"></span>
+          </div>
+          <span style="font-size:15px; color:var(--muted);">matrícula</span>
+        </div>
+        <ul class="plain" style="margin-top:22px;">
+          <li><b>Visita sem hora marcada.</b><span class="sub">A pessoa chega e é atendida como imprevisto, não como agenda.</span></li>
+          <li><b>Sem retomada de quem visitou e não fechou.</b><span class="sub">Quem sai sem matricular não recebe contato depois.</span></li>
+          <li><b>Atendimento varia de unidade pra unidade.</b><span class="sub">Sem roteiro único de recepção.</span></li>
+        </ul>
+        <div class="premise"><b>Método:</b> confirmado ou não, cada hipótese vira número na leitura de visita e matrícula das nove unidades nos últimos 24 meses.</div>
+      </div>
+    </section>
+
+    <!-- 05 · O QUE A GENTE ENTREGA -->
+    <section class="slide" data-i="5">
+      <div class="strip"><span class="mark">Praxis · Rede Ímpeto</span><span class="index">05 / 11</span></div>
+      <div class="content" style="justify-content:center;">
+        <h1>O que a Praxis entrega</h1>
+        <p class="lede">Sempre no sistema que a Rede Ímpeto já usa.</p>
+        <ul class="plain" style="margin-top:26px; column-count:2; column-gap:60px;">
+          <li><b>Leitura de visita e matrícula</b><span class="sub">nas nove unidades, 24 meses, aberta por unidade e horário</span></li>
+          <li><b>Roteiro único de recepção</b><span class="sub">o mesmo padrão de atendimento em todas as unidades</span></li>
+          <li><b>Retomada de quem visitou e não fechou</b><span class="sub">contato depois da visita, não só durante</span></li>
+          <li><b>Agendamento da visita</b><span class="sub">antes de ela acontecer, não de improviso</span></li>
+          <li><b>Painel de visita e conversão</b><span class="sub">por unidade, atualizado toda semana</span></li>
+          <li><b>Time da recepção formado</b><span class="sub">pra assumir a operação a partir do 6º mês</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 06 · AS TRÊS FASES -->
+    <section class="slide" data-i="6">
+      <div class="strip"><span class="mark">Praxis · Rede Ímpeto</span><span class="index">06 / 11</span></div>
+      <div class="content">
+        <h1>Três fases, doze meses</h1>
+        <p class="lede">Clique em cada fase pra abrir o detalhe.</p>
+        <div id="phaseCards" style="display:flex; gap:18px; flex:1; min-height:0; margin-top:8px;">
+          <div class="phase-card" data-phase="1" data-kind="p1">
+            <svg class="icon-big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="6.5"></circle><path d="M14.8 14.8L20 20"></path></svg>
+            <h3>Diagnóstico</h3>
+            <div class="dur">3 semanas</div>
+            <div class="detail">
+              <p>Leitura de visita e matrícula das nove unidades, 24 meses, aberta por unidade e horário. Escuta de como a recepção atende hoje.</p>
+              <p>Sai com as hipóteses de vazamento priorizadas e a conta de quanto cada uma vale.</p>
+            </div>
+          </div>
+          <div class="phase-card" data-phase="2" data-kind="p2">
+            <svg class="icon-big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2.5"></rect><path d="M8 8.5h8M8 12.5h8M8 16.5h5"></path></svg>
+            <h3>Implementação</h3>
+            <div class="dur">8 semanas</div>
+            <div class="detail">
+              <p>Roteiro único de recepção pras nove unidades. Retomada de quem visita e não fecha. Agendamento da visita antes de ela acontecer.</p>
+              <p>Painel de visita e conversão por unidade, atualizado toda semana.</p>
+            </div>
+          </div>
+          <div class="phase-card" data-phase="3" data-kind="p3">
+            <svg class="icon-big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="2"></circle><path d="M12 4v3M12 17v3M4 12h3M17 12h3"></path></svg>
+            <h3>Operação assistida</h3>
+            <div class="dur">9 meses</div>
+            <div class="detail">
+              <p>A Praxis opera junto com a recepção, lendo o painel toda semana com o time da Rede Ímpeto.</p>
+              <p>Forma alguém de lá pra assumir o comando a partir do 6º mês — sem depender da Praxis pra sempre.</p>
+            </div>
+          </div>
+        </div>
+        <div class="premise"><b>Forma padrão da Praxis:</b> diagnóstico, implementação e operação assistida até o time do cliente tocar sozinho.</div>
+      </div>
+    </section>
+
+    <!-- 07 · QUANTO CUSTA -->
+    <section class="slide" data-i="7">
+      <div class="strip"><span class="mark">Praxis · Rede Ímpeto</span><span class="index">07 / 11</span></div>
+      <div class="content">
+        <h1>Investimento e condições de pagamento</h1>
+        <div class="glass-panel" style="margin-top:14px; padding:20px 28px;">
+        <table class="plan">
+          <tr><th>Fase</th><th>Duração</th><th>Valor</th><th>Pagamento</th></tr>
+          <tr><td>Diagnóstico</td><td>3 semanas</td><td class="num">R$ 5.400</td><td>parcela única</td></tr>
+          <tr><td>Implementação</td><td>8 semanas</td><td class="num">R$ 12.200</td><td>duas parcelas</td></tr>
+          <tr><td>Operação assistida</td><td>9 meses</td><td class="num">R$ 800/mês</td><td>mensal — total R$ 7.200</td></tr>
+          <tr class="total"><td>Total</td><td>12 meses</td><td class="num" id="totalCell">R$ 0</td><td></td></tr>
+        </table>
+        </div>
+        <div class="metrics compact" style="margin-top:18px;">
+          <div class="metric" data-kind="money">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2.5"></rect><circle cx="12" cy="12" r="2.6"></circle></svg>
+            <div class="value amber" id="c7">R$ 0</div>
+            <div class="label">entrada — 30% na assinatura, abatida das parcelas abaixo</div>
+          </div>
+          <div class="metric" data-kind="time">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5v5l3.2 2"></path></svg>
+            <div class="value" id="c8">0 dias</div>
+            <div class="label">validade desta proposta</div>
+          </div>
+        </div>
+        <div class="premise" style="margin-top:10px;">Total de R$ 24.800. A entrada de R$ 7.440 é parte desse valor, não um acréscimo — os R$ 17.360 restantes seguem distribuídos nas parcelas das três fases.</div>
+      </div>
+    </section>
+
+    <!-- 08 · O RETORNO (interativo) -->
+    <section class="slide" data-i="8">
+      <div class="strip"><span class="mark">Praxis · Rede Ímpeto</span><span class="index">08 / 11</span></div>
+      <div class="content">
+        <h1 style="font-size:29px;">O número que decide o retorno</h1>
+        <p class="lede" style="margin-bottom:10px;">Arraste até a conversão que parece possível — tudo muda junto.</p>
+
+        <div class="metrics compact" id="liveMetrics">
+          <div class="metric" data-kind="conversion">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16l-6.2 7.2v5.3l-3.6 1.8v-7.1L4 5z"></path></svg>
+            <div class="value amber" id="mConv">23,0%</div>
+            <div class="label">conversão simulada</div>
+          </div>
+          <div class="metric" data-kind="people">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"></circle><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15.3 19c0-2.2 1-3.8 3.2-4.1"></path></svg>
+            <div class="value" id="mExtra">0</div>
+            <div class="label">matrículas a mais por mês</div>
+          </div>
+          <div class="metric" data-kind="money">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2.5"></rect><circle cx="12" cy="12" r="2.6"></circle></svg>
+            <div class="value" id="mMargin">R$ 0</div>
+            <div class="label">margem extra por mês</div>
+          </div>
+        </div>
+
+        <div id="sliderWrap" style="position:relative; height:52px; margin:10px 4px 0;">
+          <div style="position:absolute; left:0; right:0; top:23px; height:6px; border-radius:999px; background:rgba(255,255,255,.08); border:1px solid var(--glass-border);"></div>
+          <div id="fillBar" style="position:absolute; left:0; top:23px; height:6px; border-radius:999px; background:var(--amber); box-shadow:0 0 16px rgba(255,182,72,.55); width:0%;"></div>
+
+          <!-- fixed breakeven marker, does not move -->
+          <div id="breakMarker" style="position:absolute; top:6px; transform:translateX(-50%);">
+            <div style="width:1px; height:18px; background:rgba(255,255,255,.5); margin:0 auto;"></div>
+            <div style="width:8px; height:8px; border-radius:50%; background:#fff; box-shadow:0 0 10px rgba(255,255,255,.7); margin:2px auto 0;"></div>
+          </div>
+          <div id="breakLabel" style="position:absolute; top:-30px; transform:translateX(-50%); font-size:13px; color:var(--muted); white-space:nowrap; text-align:center; line-height:1.3;">a partir daqui, se paga</div>
+
+          <!-- today marker, does not move -->
+          <div id="todayTick" style="position:absolute; top:16px; transform:translateX(-50%); width:1px; height:16px; background:var(--muted-2);"></div>
+          <div id="todayMarker" style="position:absolute; top:37px; transform:translateX(-50%); font-size:13px; color:var(--muted-2); white-space:nowrap;">hoje</div>
+
+          <input id="convSlider" type="range" min="18" max="30" step="0.1" value="23"
+            style="position:absolute; left:0; right:0; top:3px; width:100%; height:40px; margin:0; background:transparent; -webkit-appearance:none; appearance:none; cursor:grab;">
+        </div>
+
+        <div id="statusLine" style="margin-top:8px; font-size:15px; font-weight:600;"></div>
+
+        <div class="glass-panel" style="margin-top:8px; padding:12px 24px 8px;">
+        <svg id="paybackChart" viewBox="0 0 1080 210" width="100%" height="126" style="overflow:visible;">
+          <defs>
+            <linearGradient id="gradPhase1" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#ffb648"></stop><stop offset="100%" stop-color="#ff5fa8"></stop>
+            </linearGradient>
+            <linearGradient id="gradPhase2" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#ff5fa8"></stop><stop offset="100%" stop-color="#8c6bff"></stop>
+            </linearGradient>
+            <linearGradient id="gradPhase3" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#8c6bff"></stop><stop offset="100%" stop-color="#4f8dff"></stop>
+            </linearGradient>
+          </defs>
+          <!-- phase bands (fixed, from tela 06's timeline) -->
+          <rect x="60" y="174" width="56" height="7" rx="3.5" fill="url(#gradPhase1)"></rect>
+          <rect x="122" y="174" width="142" height="7" rx="3.5" fill="url(#gradPhase2)"></rect>
+          <rect x="270" y="174" width="750" height="7" rx="3.5" fill="url(#gradPhase3)"></rect>
+          <!-- month axis -->
+          <line x1="60" y1="168" x2="1020" y2="168" stroke="rgba(255,255,255,.14)" stroke-width="1"></line>
+          <text x="60" y="198" fill="var(--muted-2)" font-size="14">0</text>
+          <text x="300" y="198" fill="var(--muted-2)" font-size="14">3 meses</text>
+          <text x="540" y="198" fill="var(--muted-2)" font-size="14">6 meses</text>
+          <text x="780" y="198" fill="var(--muted-2)" font-size="14">9 meses</text>
+          <text x="1020" y="198" fill="var(--muted-2)" font-size="14" text-anchor="end">12 meses</text>
+          <!-- cost reference line -->
+          <line x1="60" y1="50" x2="1020" y2="50" stroke="rgba(255,255,255,.3)" stroke-width="1" stroke-dasharray="3,4"></line>
+          <text x="1020" y="42" fill="var(--muted)" font-size="14" text-anchor="end">custo do projeto — R$ 24.800</text>
+          <!-- dynamic curve + marker -->
+          <path id="curveLine" d="" fill="none" stroke="var(--amber)" stroke-width="3.5" stroke-linecap="round"></path>
+          <line id="paybackVLine" x1="0" y1="0" x2="0" y2="0" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="3,3" visibility="hidden"></line>
+          <circle id="paybackDot" cx="0" cy="0" r="7" fill="var(--amber)" visibility="hidden"></circle>
+          <text id="paybackLabel" x="0" y="0" font-size="18" font-weight="700" text-anchor="middle" visibility="hidden">—</text>
+        </svg>
+        <div style="display:flex; gap:26px; margin-top:10px; padding-top:8px; border-top:1px solid var(--glass-border);">
+          <span style="font-size:14px; color:var(--muted);"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#ffb648,#ff5fa8);margin-right:6px;"></span>Diagnóstico</span>
+          <span style="font-size:14px; color:var(--muted);"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#ff5fa8,#8c6bff);margin-right:6px;"></span>Implementação</span>
+          <span style="font-size:14px; color:var(--muted);"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#8c6bff,#4f8dff);margin-right:6px;"></span>Operação assistida</span>
+        </div>
+        </div>
+
+        <div class="premise" style="margin-top:8px;"><b>Cálculo:</b> margem extra = (622 × conversão − 143) × R$ 92,38. Ganho conta a partir do 4º mês e soma até o fim dos 12 meses.</div>
+      </div>
+    </section>
+
+    <!-- 10 · O QUE NÃO ESTÁ INCLUÍDO -->
+    <section class="slide" data-i="9">
+      <div class="strip"><span class="mark">Praxis · Rede Ímpeto</span><span class="index">09 / 11</span></div>
+      <div class="content" style="justify-content:center;">
+        <h1>O que não está incluído</h1>
+        <ul class="plain" style="margin-top:28px;">
+          <li><b>Produção de anúncio, foto e vídeo.</b></li>
+          <li><b>Compra de mídia em nome da Praxis.</b><span class="sub">A verba continua na conta da Rede Ímpeto.</span></li>
+          <li><b>Reforma ou obra nas unidades.</b></li>
+          <li><b>Contratação de gente para a recepção.</b></li>
+          <li><b>Ferramenta nova.</b><span class="sub">A Praxis trabalha no sistema que a Rede Ímpeto já paga.</span></li>
+          <li><b>Garantia de resultado.</b><span class="sub">A Praxis responde por método, prazo e o que será medido.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 11 · AS PREMISSAS -->
+    <section class="slide" data-i="10">
+      <div class="strip"><span class="mark">Praxis · Rede Ímpeto</span><span class="index">10 / 11</span></div>
+      <div class="content">
+        <h1>De onde vêm os números desta proposta</h1>
+        <ul class="plain" style="margin-top:10px; column-count:2; column-gap:60px;">
+          <li>622 visitas e 143 matrículas por mês, nas nove unidades</li>
+          <li>Conversão de 32% (18 meses atrás) para 23% (hoje)</li>
+          <li>Custo por visita de R$ 44 para R$ 50</li>
+          <li>Investimento em captação de R$ 376 mil no último ano</li>
+          <li>Mensalidade média de R$ 149</li>
+          <li>Margem de contribuição de 62%</li>
+          <li>Evasão de 4% ao mês</li>
+        </ul>
+        <div class="premise"><b>Origem:</b> todos os números acima foram informados pela Rede Ímpeto na reunião de diagnóstico e não foram auditados pela Praxis. Os cálculos de custo por matrícula e retorno (telas 03 e 08) são estimativas da Praxis a partir desses números — não são medição direta.</div>
+      </div>
+    </section>
+
+    <!-- 12 · ONDE CHEGAM -->
+    <section class="slide" data-i="11">
+      <div class="strip"><span class="mark">Praxis · Rede Ímpeto</span><span class="index">11 / 11</span></div>
+      <div class="content">
+        <h1>Onde chegam, e o que precisa acontecer pra começar</h1>
+        <p class="lede" style="max-width:820px;">Nove unidades operando com o mesmo roteiro de recepção, contato ativo com quem visita e não fecha, e um painel único de visita e conversão por unidade e horário. A conversão medida a cada mês — sem promessa de número fechado.</p>
+        <ul class="plain" style="margin-top:10px;">
+          <li><b>1. Assinatura do contrato e entrada de R$ 7.440</b><span class="sub">30% do valor total, na assinatura</span></li>
+          <li><b>2. Um responsável nomeado do lado da Rede Ímpeto</b><span class="sub">acompanha a operação — toda operação da Praxis tem dono do lado do cliente</span></li>
+          <li><b>3. Início do diagnóstico</b><span class="sub">3 semanas, leitura de visita e matrícula das nove unidades</span></li>
+        </ul>
+        <div class="premise">Proposta válida por 30 dias.</div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<div class="hint" id="hint"><span class="kbd">←</span><span class="kbd">→</span> navegar</div>
+
+<script>
+  const stage = document.getElementById('stage');
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const hint = document.getElementById('hint');
+  let current = 0;
+
+  function render(){
+    slides.forEach((s, idx) => {
+      s.classList.toggle('active', idx === current);
+    });
+    const activeSlide = slides[current];
+    clearTimeout(window.__enterTimer);
+    window.__enterTimer = setTimeout(() => { onSlideEnter(activeSlide); }, 180);
+  }
+
+  function go(delta){
+    const next = current + delta;
+    if(next < 0 || next >= slides.length) return;
+    current = next;
+    render();
+    hint.classList.add('hidden');
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if(document.activeElement && document.activeElement.id === 'convSlider') return;
+    if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){ e.preventDefault(); go(1); }
+    else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){ e.preventDefault(); go(-1); }
+    else if(e.key === 'Home'){ e.preventDefault(); current = 0; render(); }
+    else if(e.key === 'End'){ e.preventDefault(); current = slides.length - 1; render(); }
+  });
+
+  document.getElementById('viewport').addEventListener('click', (e) => {
+    if(e.target.closest('#sliderWrap') || e.target.closest('.phase-card')) return;
+    const rect = stage.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    if(x < rect.width * 0.35) go(-1); else go(1);
+  });
+
+  function resize(){
+    const scale = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    stage.style.transform = `scale(${scale})`;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+  render();
+
+  // ---- interactive return slide ----
+  let playSlide8Enter = null;
+  (function(){
+    const slider = document.getElementById('convSlider');
+    if(!slider) return;
+
+    const VISITS = 622;
+    const BASE_MATRICULAS = 143;
+    const MARGIN_PER_ALUNO = 149 * 0.62; // 92.38
+    const TOTAL_COST = 24800;
+    const ACCRUAL_MONTHS = 9; // gains counted from month 4 through month 12
+    const MIN = parseFloat(slider.min), MAX = parseFloat(slider.max);
+    const TODAY = 23;
+
+    const breakEvenExtra = (TOTAL_COST / ACCRUAL_MONTHS) / MARGIN_PER_ALUNO;
+    const breakEvenConv = (BASE_MATRICULAS + breakEvenExtra) / VISITS * 100;
+    const fastExtraMargin = TOTAL_COST / (10 - 3);
+    const fastExtra = fastExtraMargin / MARGIN_PER_ALUNO;
+    const fastConv = (BASE_MATRICULAS + fastExtra) / VISITS * 100;
+
+    function pct(v){ return ((v - MIN) / (MAX - MIN)) * 100; }
+
+    const breakMarker = document.getElementById('breakMarker');
+    const breakLabel = document.getElementById('breakLabel');
+    const todayTick = document.getElementById('todayTick');
+    const todayMarker = document.getElementById('todayMarker');
+    breakMarker.style.left = pct(breakEvenConv) + '%';
+    breakLabel.style.left = pct(breakEvenConv) + '%';
+    todayTick.style.left = pct(TODAY) + '%';
+    todayMarker.style.left = pct(TODAY) + '%';
+
+    const mConv = document.getElementById('mConv');
+    const mExtra = document.getElementById('mExtra');
+    const mMargin = document.getElementById('mMargin');
+    const fillBar = document.getElementById('fillBar');
+    const statusLine = document.getElementById('statusLine');
+    const curveLine = document.getElementById('curveLine');
+    const paybackVLine = document.getElementById('paybackVLine');
+    const paybackDot = document.getElementById('paybackDot');
+    const paybackLabel = document.getElementById('paybackLabel');
+
+    // chart coordinate mapping: months 0-12 -> x 60-1020; R$ 0-38000 -> y 170-30
+    const CX0 = 60, CX1 = 1020, CY0 = 170, CY1 = 30;
+    const KINK_MONTH = 3; // ganho passa a contar a partir do 4º mês
+    const Y_MAX = 38000;
+    const xAt = (m) => CX0 + (m / 12) * (CX1 - CX0);
+    const yAt = (v) => CY0 - (Math.min(v, Y_MAX) / Y_MAX) * (CY0 - CY1);
+    const fmtBRL = (n) => 'R$ ' + Math.round(n).toLocaleString('pt-BR');
+
+    function computeState(c){
+      const matriculas = VISITS * (c / 100);
+      const extra = Math.round(matriculas - BASE_MATRICULAS);
+      const extraMargin = extra * MARGIN_PER_ALUNO;
+      let paybackMonth = null;
+      if(extraMargin > 0){ paybackMonth = KINK_MONTH + TOTAL_COST / extraMargin; }
+      const val12 = Math.max(extraMargin, 0) * ACCRUAL_MONTHS;
+      let color, message, covers;
+      if(paybackMonth === null || paybackMonth > 12){
+        color = '#fb7185'; covers = false;
+        message = 'Nesse ritmo, o retorno ainda não cobre o investimento dentro dos 12 meses do projeto.';
+      } else {
+        covers = true;
+        color = (c < fastConv) ? 'var(--amber)' : '#34d399';
+        message = (c < fastConv)
+          ? 'A partir daqui, o retorno cobre o investimento dentro dos 12 meses do projeto.'
+          : 'Nesse ritmo, o retorno cobre o investimento rápido — dentro da própria operação assistida.';
+      }
+      return { c, extra, extraMargin, paybackMonth, val12, color, message, covers };
+    }
+
+    function pathFor(val12){
+      const x0 = xAt(0), y0 = yAt(0), xk = xAt(KINK_MONTH), x2 = xAt(12), y2 = yAt(val12);
+      const dx = x2 - xk, dy = y2 - y0, len2 = Math.hypot(dx, dy);
+      const R = Math.max(0, Math.min(46, len2 * 0.45, (xk - x0) * 0.6));
+      if(len2 < 1 || R < 2){
+        return `M ${x0},${y0} L ${xk},${y0} L ${x2},${y2}`;
+      }
+      const c1x = xk - R, c1y = y0;
+      const c2x = xk + (R * dx) / len2, c2y = y0 + (R * dy) / len2;
+      return `M ${x0},${y0} L ${c1x},${c1y} Q ${xk},${y0} ${c2x},${c2y} L ${x2},${y2}`;
+    }
+
+    // finds the arc-length at which the path reaches a given x — robust to curved/smoothed paths
+    function lengthAtX(pathEl, targetX, totalLen){
+      let lo = 0, hi = totalLen;
+      for(let i = 0; i < 24; i++){
+        const mid = (lo + hi) / 2;
+        if(pathEl.getPointAtLength(mid).x < targetX) lo = mid; else hi = mid;
+      }
+      return (lo + hi) / 2;
+    }
+
+    function placeMarker(st, animatePop){
+      if(!st.covers){
+        paybackVLine.setAttribute('visibility', 'hidden');
+        paybackDot.setAttribute('visibility', 'hidden');
+        paybackLabel.setAttribute('visibility', 'hidden');
+        paybackDot.classList.remove('pop');
+        return;
+      }
+      const px = xAt(st.paybackMonth), py = yAt(TOTAL_COST);
+      paybackVLine.setAttribute('x1', px); paybackVLine.setAttribute('x2', px);
+      paybackVLine.setAttribute('y1', CY0); paybackVLine.setAttribute('y2', py);
+      paybackVLine.setAttribute('stroke', st.color);
+      paybackVLine.setAttribute('visibility', 'visible');
+      paybackDot.setAttribute('cx', px); paybackDot.setAttribute('cy', py);
+      paybackDot.setAttribute('fill', st.color);
+      paybackDot.style.filter = `drop-shadow(0 0 10px ${st.color})`;
+      paybackDot.setAttribute('visibility', 'visible');
+      paybackLabel.setAttribute('x', px); paybackLabel.setAttribute('y', Math.max(py - 14, 20));
+      paybackLabel.setAttribute('fill', st.color);
+      paybackLabel.textContent = '~' + st.paybackMonth.toFixed(1).replace('.', ',') + ' meses';
+      paybackLabel.setAttribute('visibility', 'visible');
+      if(animatePop){
+        paybackDot.classList.remove('pop'); void paybackDot.offsetWidth; paybackDot.classList.add('pop');
+      }
+    }
+
+    // instant update — used while dragging, no draw-in animation (drag itself is the live feedback)
+    function applyInstant(){
+      const c = parseFloat(slider.value);
+      const st = computeState(c);
+      setNumberNow(mConv, c.toFixed(1).replace('.', ',') + '%');
+      setNumberNow(mExtra, (st.extra >= 0 ? '+' : '') + st.extra);
+      setNumberNow(mMargin, fmtBRL(Math.max(st.extraMargin, 0)));
+      fillBar.style.width = pct(c) + '%';
+      fillBar.style.background = st.color; fillBar.style.boxShadow = '0 0 16px ' + st.color;
+      curveLine.style.transition = 'none';
+      curveLine.setAttribute('d', pathFor(st.val12));
+      curveLine.removeAttribute('stroke-dasharray');
+      curveLine.removeAttribute('stroke-dashoffset');
+      curveLine.setAttribute('stroke', st.color); curveLine.style.filter = 'drop-shadow(0 0 8px ' + st.color + ')';
+      placeMarker(st, false);
+      statusLine.textContent = st.message;
+      statusLine.style.color = st.color;
+    }
+
+    // entrance choreography — curve draws itself; payback marker appears exactly when the line reaches it
+    playSlide8Enter = function(){
+      const c = parseFloat(slider.value);
+      const st = computeState(c);
+      const DRAW_MS = 900;
+
+      setNumberNow(mConv, '0,0%');
+      setNumberNow(mExtra, '0');
+      setNumberNow(mMargin, 'R$ 0');
+      fillBar.style.transition = 'none';
+      fillBar.style.width = '0%';
+      fillBar.style.background = st.color; fillBar.style.boxShadow = '0 0 16px ' + st.color;
+      placeMarker(st, false);
+      paybackVLine.setAttribute('visibility', 'hidden');
+      paybackDot.setAttribute('visibility', 'hidden');
+      paybackLabel.setAttribute('visibility', 'hidden');
+
+      const d = pathFor(st.val12);
+      curveLine.style.transition = 'none';
+      curveLine.setAttribute('stroke', st.color); curveLine.style.filter = 'drop-shadow(0 0 8px ' + st.color + ')';
+      curveLine.setAttribute('d', d);
+      const totalLen = curveLine.getTotalLength();
+      curveLine.setAttribute('stroke-dasharray', totalLen);
+      curveLine.setAttribute('stroke-dashoffset', totalLen);
+      void curveLine.getBoundingClientRect();
+      requestAnimationFrame(() => {
+        curveLine.style.transition = `stroke-dashoffset ${DRAW_MS}ms cubic-bezier(.22,.7,.2,1)`;
+        curveLine.setAttribute('stroke-dashoffset', '0');
+      });
+
+      requestAnimationFrame(() => {
+        fillBar.style.transition = `width ${DRAW_MS}ms cubic-bezier(.22,.7,.2,1)`;
+        fillBar.style.width = pct(c) + '%';
+      });
+
+      animateNumber(mConv, { to: c, decimals: 1, suffix: '%', duration: DRAW_MS });
+      animateNumber(mExtra, { to: st.extra, prefix: st.extra >= 0 ? '+' : '', duration: DRAW_MS });
+      animateNumber(mMargin, { to: Math.max(st.extraMargin, 0), prefix: 'R$ ', duration: DRAW_MS });
+
+      statusLine.style.opacity = 0;
+      setTimeout(() => { statusLine.textContent = st.message; statusLine.style.color = st.color; statusLine.style.transition = 'opacity .4s ease'; statusLine.style.opacity = 1; }, DRAW_MS * 0.35);
+
+      if(st.covers){
+        // reveal the marker at the exact moment the drawing line reaches the payback point
+        const lenAtPayback = lengthAtX(curveLine, xAt(st.paybackMonth), totalLen);
+        const revealAt = Math.min((lenAtPayback / totalLen) * DRAW_MS, DRAW_MS);
+        setTimeout(() => placeMarker(st, true), revealAt);
+      }
+    };
+
+    slider.addEventListener('input', applyInstant);
+    applyInstant();
+  })();
+
+  // ---- generic entrance choreography for numbers, lists and tables ----
+  function animateNumber(el, opts){
+    if(!el) return;
+    const token = {};
+    el.__animToken = token;
+    const to = opts.to;
+    const duration = opts.duration || 900;
+    const decimals = opts.decimals || 0;
+    const prefix = opts.prefix || '';
+    const suffix = opts.suffix || '';
+    const easing = t => 1 - Math.pow(1 - t, 3);
+    const start = performance.now();
+    function frame(now){
+      if(el.__animToken !== token) return; // superseded by a newer update
+      const t = Math.min((now - start) / duration, 1);
+      const val = to * easing(t);
+      el.textContent = prefix + val.toLocaleString('pt-BR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) + suffix;
+      if(t < 1) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+  function setNumberNow(el, text){
+    if(!el) return;
+    el.__animToken = {}; // invalidate any in-flight count-up targeting this element
+    el.textContent = text;
+  }
+
+  function revealSlide(slideEl){
+    const metrics = slideEl.querySelectorAll('.metric');
+    metrics.forEach((m, i) => {
+      m.classList.remove('reveal'); void m.offsetWidth;
+      m.style.animationDelay = (i * 90) + 'ms';
+      m.classList.add('reveal');
+    });
+    const items = slideEl.querySelectorAll('ul.plain li');
+    items.forEach((li, i) => {
+      li.classList.remove('reveal'); void li.offsetWidth;
+      li.style.animationDelay = (i * 65) + 'ms';
+      li.classList.add('reveal');
+    });
+    slideEl.querySelectorAll('[data-stagger]').forEach((container) => {
+      Array.from(container.children).forEach((c, i) => {
+        c.classList.remove('reveal'); void c.offsetWidth;
+        c.style.animationDelay = (i * 100) + 'ms';
+        c.classList.add('reveal');
+      });
+    });
+    slideEl.querySelectorAll('table.plan tr').forEach((tr, i) => {
+      tr.classList.remove('reveal'); void tr.offsetWidth;
+      tr.style.animationDelay = (i * 80) + 'ms';
+      tr.classList.add('reveal');
+    });
+  }
+
+  const slideEnterHandlers = {
+    '1': () => {
+      animateNumber(document.getElementById('c1'), { to: 24800, prefix: 'R$ ' });
+      animateNumber(document.getElementById('c2'), { to: 12, suffix: ' meses' });
+      animateNumber(document.getElementById('c3'), { to: 7440, prefix: 'R$ ' });
+      animateNumber(document.getElementById('c4'), { to: 30, suffix: ' dias' });
+      animateNumber(document.getElementById('c5'), { to: 9 });
+      animateNumber(document.getElementById('c6'), { to: 6.4, decimals: 1, prefix: 'R$ ', suffix: ' mi' });
+    },
+    '2': () => {
+      animateNumber(document.getElementById('n622'), { to: 622 });
+      animateNumber(document.getElementById('n143'), { to: 143 });
+      animateNumber(document.getElementById('n32'), { to: 32, suffix: '%' });
+      animateNumber(document.getElementById('n23'), { to: 23, suffix: '%' });
+    },
+    '3': () => {
+      const bars = [
+        { bar: 'cb1', val: 'cv1', h: 112, v: 137.50 },
+        { bar: 'cb2', val: 'cv2', h: 128, v: 156.25 },
+        { bar: 'cb3', val: 'cv3', h: 157, v: 191.30 },
+        { bar: 'cb4', val: 'cv4', h: 180, v: 217.40 },
+      ];
+      bars.forEach((b) => {
+        const barEl = document.getElementById(b.bar);
+        barEl.style.height = '0px';
+        void barEl.offsetHeight;
+        barEl.style.height = b.h + 'px';
+        animateNumber(document.getElementById(b.val), { to: b.v, decimals: 2, prefix: 'R$ ' });
+      });
+    },
+    '6': () => {
+      document.querySelectorAll('.phase-card').forEach((card) => {
+        card.classList.remove('open', 'closed');
+      });
+    },
+    '7': () => {
+      animateNumber(document.getElementById('c7'), { to: 7440, prefix: 'R$ ' });
+      animateNumber(document.getElementById('c8'), { to: 30, suffix: ' dias' });
+      animateNumber(document.getElementById('totalCell'), { to: 24800, prefix: 'R$ ' });
+    },
+    '8': () => { if(playSlide8Enter) playSlide8Enter(); },
+  };
+
+  function onSlideEnter(slideEl){
+    revealSlide(slideEl);
+    const handler = slideEnterHandlers[slideEl.getAttribute('data-i')];
+    if(handler) handler();
+  }
+
+  // ---- clickable phase cards (slide 06) ----
+  document.querySelectorAll('.phase-card').forEach((card) => {
+    card.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const cards = Array.from(document.querySelectorAll('.phase-card'));
+      const alreadyOpen = card.classList.contains('open');
+      cards.forEach((c) => c.classList.remove('open', 'closed'));
+      if(!alreadyOpen){
+        card.classList.add('open');
+        cards.filter((c) => c !== card).forEach((c) => c.classList.add('closed'));
+      }
+    });
+  });
+</script>
+</body>
+</html>
